@@ -14,7 +14,7 @@ from matplotlib.patches import Rectangle
 from .core import DifferentialTimeSignal, TimeSignal
 
 if TYPE_CHECKING:
-    import matplotlib.cm as cm
+    pass
 
 
 class SignalVisualizer:
