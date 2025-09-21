@@ -23,19 +23,23 @@ from selenium.webdriver.support.ui import WebDriverWait
 # Load environment variables
 load_dotenv()
 
+
 def setup_driver():
     """Setup Chrome driver with enhanced options for IEEE access."""
     options = Options()
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option('useAutomationExtension', False)
-    options.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+    options.add_experimental_option("useAutomationExtension", False)
+    options.add_argument(
+        "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    )
 
     driver = webdriver.Chrome(options=options)
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     return driver
+
 
 def search_ieee_paper(title, authors, year):
     """Search for paper on IEEE Xplore with detailed logging."""
@@ -50,7 +54,9 @@ def search_ieee_paper(title, authors, year):
         # Go to IEEE Xplore search
         search_query = f'"{title}"'
         encoded_query = quote_plus(search_query)
-        search_url = f"https://ieeexplore.ieee.org/search/searchresult.jsp?queryText={encoded_query}"
+        search_url = (
+            f"https://ieeexplore.ieee.org/search/searchresult.jsp?queryText={encoded_query}"
+        )
 
         print(f"Search URL: {search_url}")
         driver.get(search_url)
@@ -78,7 +84,7 @@ def search_ieee_paper(title, authors, year):
                     ".result-item-title a",
                     ".document-title a",
                     ".title a",
-                    "a[href*='/document/']"
+                    "a[href*='/document/']",
                 ]
 
                 paper_title = ""
@@ -90,7 +96,7 @@ def search_ieee_paper(title, authors, year):
                         if title_elements:
                             title_element = title_elements[0]
                             paper_title = title_element.text.strip()
-                            paper_url = title_element.get_attribute('href')
+                            paper_url = title_element.get_attribute("href")
                             if paper_title:
                                 break
                     except:
@@ -102,12 +108,12 @@ def search_ieee_paper(title, authors, year):
                     # Try to find any IEEE document link
                     links = result.find_elements(By.TAG_NAME, "a")
                     for link in links:
-                        href = link.get_attribute('href')
-                        if href and '/document/' in href:
+                        href = link.get_attribute("href")
+                        if href and "/document/" in href:
                             paper_url = href
                             break
 
-                print(f"\\nResult {i+1}: {paper_title[:80]}...")
+                print(f"\\nResult {i + 1}: {paper_title[:80]}...")
                 print(f"URL: {paper_url}")
 
                 # Check if this looks like a match (simple similarity check)
@@ -122,12 +128,12 @@ def search_ieee_paper(title, authors, year):
                     return paper_url
 
                 # If we have a valid IEEE document URL, try it anyway
-                if paper_url and '/document/' in paper_url:
+                if paper_url and "/document/" in paper_url:
                     print("✓ Found valid IEEE document URL, will try this one")
                     return paper_url
 
             except Exception as e:
-                print(f"Error processing result {i+1}: {e}")
+                print(f"Error processing result {i + 1}: {e}")
                 continue
 
         print("✗ No matching papers found in results")
@@ -135,6 +141,7 @@ def search_ieee_paper(title, authors, year):
 
     finally:
         driver.quit()
+
 
 def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
     """Attempt to download paper from IEEE with login."""
@@ -159,13 +166,13 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
                 ".personal-signin-btn",
                 "#personal-signin",
                 "//button[contains(@class, 'personal')]",
-                "//a[contains(@class, 'signin')]"
+                "//a[contains(@class, 'signin')]",
             ]
 
             signin_button = None
             for selector in signin_button_selectors:
                 try:
-                    if selector.startswith('//'):
+                    if selector.startswith("//"):
                         elements = driver.find_elements(By.XPATH, selector)
                     else:
                         elements = driver.find_elements(By.CSS_SELECTOR, selector)
@@ -179,14 +186,17 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
 
             if not signin_button:
                 # Look more broadly for any sign in elements
-                all_signin_elements = driver.find_elements(By.XPATH, "//*[contains(text(), 'Sign In') or contains(text(), 'Sign in') or contains(text(), 'signin')]")
+                all_signin_elements = driver.find_elements(
+                    By.XPATH,
+                    "//*[contains(text(), 'Sign In') or contains(text(), 'Sign in') or contains(text(), 'signin')]",
+                )
                 print(f"Found {len(all_signin_elements)} elements with sign in text:")
                 for elem in all_signin_elements[:5]:
                     try:
                         text = elem.text.strip()
                         tag = elem.tag_name
                         print(f"  - {tag}: '{text}'")
-                        if 'Personal' in text or 'personal' in text:
+                        if "Personal" in text or "personal" in text:
                             signin_button = elem
                             print("✓ Found Personal Sign In element")
                             break
@@ -216,7 +226,7 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
                         ".personal-signin-form",
                         "#signin-form",
                         "form[name='signin']",
-                        "div[style*='block']"  # Look for divs that became visible
+                        "div[style*='block']",  # Look for divs that became visible
                     ]
 
                     login_form = None
@@ -238,12 +248,21 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
                     except:
                         # Try alternative field names
                         try:
-                            username_field = login_form.find_element(By.CSS_SELECTOR, "input[type='email'], input[name*='user'], input[name*='email']")
-                            password_field = login_form.find_element(By.CSS_SELECTOR, "input[type='password'], input[name*='pass']")
+                            username_field = login_form.find_element(
+                                By.CSS_SELECTOR,
+                                "input[type='email'], input[name*='user'], input[name*='email']",
+                            )
+                            password_field = login_form.find_element(
+                                By.CSS_SELECTOR, "input[type='password'], input[name*='pass']"
+                            )
                         except:
                             # Look more broadly in the form
-                            username_field = login_form.find_element(By.CSS_SELECTOR, "input[type='text'], input[type='email']")
-                            password_field = login_form.find_element(By.CSS_SELECTOR, "input[type='password']")
+                            username_field = login_form.find_element(
+                                By.CSS_SELECTOR, "input[type='text'], input[type='email']"
+                            )
+                            password_field = login_form.find_element(
+                                By.CSS_SELECTOR, "input[type='password']"
+                            )
 
                     print("✓ Found login form fields in revealed div")
 
@@ -258,10 +277,16 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
 
                     # Find and click the sign in button within the form
                     try:
-                        submit_button = login_form.find_element(By.CSS_SELECTOR, "button[type='submit'], input[type='submit'], button:contains('Sign'), input[value*='Sign']")
+                        submit_button = login_form.find_element(
+                            By.CSS_SELECTOR,
+                            "button[type='submit'], input[type='submit'], button:contains('Sign'), input[value*='Sign']",
+                        )
                     except:
                         # Look for any clickable element with sign in text
-                        submit_button = login_form.find_element(By.XPATH, ".//*[contains(text(), 'Sign In') or contains(text(), 'Sign in') or contains(text(), 'Login')]")
+                        submit_button = login_form.find_element(
+                            By.XPATH,
+                            ".//*[contains(text(), 'Sign In') or contains(text(), 'Sign in') or contains(text(), 'Login')]",
+                        )
 
                     print("Clicking Sign In button...")
                     driver.execute_script("arguments[0].click();", submit_button)
@@ -276,7 +301,10 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
                     # Check for login success by looking for "Sign Out" button/text
                     try:
                         # Look specifically for Sign Out text which indicates successful login
-                        signout_elements = driver.find_elements(By.XPATH, "//*[contains(text(), 'Sign Out') or contains(text(), 'Sign out') or contains(text(), 'Logout')]")
+                        signout_elements = driver.find_elements(
+                            By.XPATH,
+                            "//*[contains(text(), 'Sign Out') or contains(text(), 'Sign out') or contains(text(), 'Logout')]",
+                        )
                         if signout_elements:
                             print("✓ Login successful - 'Sign Out' button found")
                             login_successful = True
@@ -285,7 +313,9 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
                             login_successful = False
 
                             # Also check if Personal Sign In text is still there (would indicate failed login)
-                            signin_still_there = driver.find_elements(By.XPATH, "//*[contains(text(), 'Personal Sign In')]")
+                            signin_still_there = driver.find_elements(
+                                By.XPATH, "//*[contains(text(), 'Personal Sign In')]"
+                            )
                             if signin_still_there:
                                 print("✗ Login failed - 'Personal Sign In' still visible")
 
@@ -309,7 +339,7 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
         print("\\nLooking for PDF download options...")
 
         # If we have login_successful variable, use it for better logic
-        if 'login_successful' not in locals():
+        if "login_successful" not in locals():
             login_successful = False
 
         if login_successful:
@@ -320,12 +350,12 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
         # First try to click PDF download button and wait for download
         pdf_buttons = [
             'a[title*="PDF"]',
-            '.pdf-btn',
-            '.document-btn-pdf',
+            ".pdf-btn",
+            ".document-btn-pdf",
             'a[aria-label*="PDF"]',
-            '.stats-document-abstract-downloadPdf',
+            ".stats-document-abstract-downloadPdf",
             'a[href*=".pdf"]',
-            '.document-ft-pdf-link'  # Full text PDF link
+            ".document-ft-pdf-link",  # Full text PDF link
         ]
 
         clicked_pdf = False
@@ -337,8 +367,8 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
                     print(f"✓ Found PDF element with selector: {selector}")
 
                     # Check if it's a direct PDF link
-                    href = element.get_attribute('href')
-                    if href and href.startswith('http') and '.pdf' in href:
+                    href = element.get_attribute("href")
+                    if href and href.startswith("http") and ".pdf" in href:
                         print(f"Direct PDF link: {href}")
                         pdf_link = href
                         break
@@ -365,7 +395,7 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
                 driver.switch_to.window(driver.window_handles[-1])
                 time.sleep(2)
                 current_url = driver.current_url
-                if '.pdf' in current_url:
+                if ".pdf" in current_url:
                     pdf_link = current_url
                     print(f"✓ Found PDF URL in new tab: {pdf_link}")
                 else:
@@ -373,21 +403,24 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
             else:
                 # Check if current page changed to PDF
                 current_url = driver.current_url
-                if '.pdf' in current_url or 'pdf' in current_url:
+                if ".pdf" in current_url or "pdf" in current_url:
                     pdf_link = current_url
                     print(f"✓ Current page is PDF: {pdf_link}")
 
         # If still no direct PDF link found
-        if 'pdf_link' not in locals() or not pdf_link or pdf_link == "javascript:void()":
+        if "pdf_link" not in locals() or not pdf_link or pdf_link == "javascript:void()":
             print("✗ No direct PDF download link found")
             # Try to find any download options for debugging
-            download_elements = driver.find_elements(By.XPATH, "//*[contains(text(), 'Download') or contains(text(), 'PDF') or contains(text(), 'pdf')]")
+            download_elements = driver.find_elements(
+                By.XPATH,
+                "//*[contains(text(), 'Download') or contains(text(), 'PDF') or contains(text(), 'pdf')]",
+            )
             print(f"Found {len(download_elements)} elements with 'Download' or 'PDF' text:")
             for elem in download_elements[:10]:
                 try:
                     text = elem.text.strip()[:100]
                     tag = elem.tag_name
-                    href = elem.get_attribute('href') or 'no href'
+                    href = elem.get_attribute("href") or "no href"
                     if text:
                         print(f"  - {tag}: '{text}' ({href[:50]})")
                 except:
@@ -397,7 +430,10 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
             print("\\nChecking if paper content is available...")
             try:
                 # Look for indicators that full text is available
-                full_text_indicators = driver.find_elements(By.XPATH, "//*[contains(text(), 'Open Access') or contains(text(), 'Full Text') or contains(text(), 'View full text')]")
+                full_text_indicators = driver.find_elements(
+                    By.XPATH,
+                    "//*[contains(text(), 'Open Access') or contains(text(), 'Full Text') or contains(text(), 'View full text')]",
+                )
                 if full_text_indicators:
                     print("✓ Found full text indicators - this might be an open access paper")
                     # But for now, we can't extract the PDF
@@ -412,23 +448,25 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
         print(f"Attempting to download PDF from: {pdf_link}")
 
         # Get cookies from selenium session
-        cookies = {cookie['name']: cookie['value'] for cookie in driver.get_cookies()}
+        cookies = {cookie["name"]: cookie["value"] for cookie in driver.get_cookies()}
 
         # Use requests to download
         session = requests.Session()
-        session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-        })
+        session.headers.update(
+            {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
+        )
         session.cookies.update(cookies)
 
         response = session.get(pdf_link, allow_redirects=True)
 
-        if response.status_code == 200 and 'application/pdf' in response.headers.get('content-type', ''):
+        if response.status_code == 200 and "application/pdf" in response.headers.get(
+            "content-type", ""
+        ):
             # Save the PDF
             filename = f"IEEE_Paper_{int(time.time())}.pdf"
             filepath = Path(output_dir) / filename
 
-            with open(filepath, 'wb') as f:
+            with open(filepath, "wb") as f:
                 f.write(response.content)
 
             print(f"✓ Successfully downloaded: {filename}")
@@ -446,6 +484,7 @@ def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
     finally:
         driver.quit()
 
+
 def main():
     """Try to download a specific IEEE paper."""
 
@@ -454,15 +493,15 @@ def main():
         "title": "A 10 b, 20 msample/s, 35 mw pipeline a/d converter",
         "authors": "T. B. Cho and P. R. Gray",
         "year": "1995",
-        "venue": "IEEE Journal of Solid-State Circuits"
+        "venue": "IEEE Journal of Solid-State Circuits",
     }
 
     print("=== IEEE Paper Download Attempt ===")
     print(f"Target: {target_paper['title']}")
 
     # Get credentials
-    ieee_username = os.getenv('IEEE_USERNAME')
-    ieee_password = os.getenv('IEEE_PASS')
+    ieee_username = os.getenv("IEEE_USERNAME")
+    ieee_password = os.getenv("IEEE_PASS")
 
     if not ieee_username or not ieee_password:
         print("✗ IEEE credentials not found in .env file")
@@ -472,9 +511,7 @@ def main():
 
     # Search for the paper
     paper_url = search_ieee_paper(
-        target_paper["title"],
-        target_paper["authors"],
-        target_paper["year"]
+        target_paper["title"], target_paper["authors"], target_paper["year"]
     )
 
     if not paper_url:
@@ -491,6 +528,7 @@ def main():
         print("\\n🎉 IEEE paper download successful!")
     else:
         print("\\n❌ IEEE paper download failed")
+
 
 if __name__ == "__main__":
     main()

@@ -25,32 +25,21 @@ def example_single_quadrant_vmm():
     Demonstrate single-quadrant VMM operation.
     """
     print("Single-Quadrant VMM Example")
-    print("="*40)
+    print("=" * 40)
 
     # Define weight matrix (3x4)
-    weights = np.array([
-        [0.8, 0.2, 0.5, 0.1],
-        [0.3, 0.7, 0.4, 0.6],
-        [0.1, 0.9, 0.2, 0.8]
-    ])
+    weights = np.array([[0.8, 0.2, 0.5, 0.1], [0.3, 0.7, 0.4, 0.6], [0.1, 0.9, 0.2, 0.8]])
 
     print(f"Weight matrix shape: {weights.shape}")
     print(f"Weights:\n{weights}")
 
     # Create VMM module
-    vmm = TimeVMM(
-        weights=weights,
-        max_current=1e-6,
-        capacitance=1e-12,
-        vth=0.5,
-        phase_duration=1.0
-    )
+    vmm = TimeVMM(weights=weights, max_current=1e-6, capacitance=1e-12, vth=0.5, phase_duration=1.0)
 
     # Create input vector as time signals
     input_values = [0.7, 0.3, 0.5, 0.9]
     input_signals = [
-        TimeSignal.from_analog_value(val, encoding='pulse_width')
-        for val in input_values
+        TimeSignal.from_analog_value(val, encoding="pulse_width") for val in input_values
     ]
 
     print(f"\nInput vector: {input_values}")
@@ -59,10 +48,7 @@ def example_single_quadrant_vmm():
     output_signals = vmm.compute_single_quadrant(input_signals)
 
     # Convert outputs back to analog
-    output_values = [
-        sig.to_analog_value(encoding='pulse_width')
-        for sig in output_signals
-    ]
+    output_values = [sig.to_analog_value(encoding="pulse_width") for sig in output_signals]
 
     print(f"Output vector: {output_values}")
 
@@ -78,14 +64,14 @@ def example_single_quadrant_vmm():
     fig_input = viz.plot_multiple_signals(
         input_signals,
         labels=[f"Input {i}" for i in range(len(input_signals))],
-        title="Input Signals"
+        title="Input Signals",
     )
 
     # Plot output signals
     fig_output = viz.plot_multiple_signals(
         output_signals,
         labels=[f"Output {i}" for i in range(len(output_signals))],
-        title="Output Signals"
+        title="Output Signals",
     )
 
     # Performance analysis
@@ -93,7 +79,7 @@ def example_single_quadrant_vmm():
     metrics = perf.analyze_vmm_performance(
         input_size=len(input_signals),
         output_size=len(output_signals),
-        phase_duration=vmm.phase_duration
+        phase_duration=vmm.phase_duration,
     )
 
     print("\nPerformance Metrics:")
@@ -109,34 +95,21 @@ def example_four_quadrant_vmm():
     """
     Demonstrate four-quadrant VMM with signed weights and inputs.
     """
-    print("\n" + "="*40)
+    print("\n" + "=" * 40)
     print("Four-Quadrant VMM Example")
-    print("="*40)
+    print("=" * 40)
 
     # Define weight matrix with positive and negative values
-    weights = np.array([
-        [0.5, -0.3, 0.8],
-        [-0.2, 0.7, -0.4],
-        [0.9, -0.6, 0.1]
-    ])
+    weights = np.array([[0.5, -0.3, 0.8], [-0.2, 0.7, -0.4], [0.9, -0.6, 0.1]])
 
     print(f"Weight matrix:\n{weights}")
 
     # Create VMM module
-    vmm = TimeVMM(
-        weights=weights,
-        max_current=1e-6,
-        capacitance=1e-12,
-        vth=0.5,
-        phase_duration=1.0
-    )
+    vmm = TimeVMM(weights=weights, max_current=1e-6, capacitance=1e-12, vth=0.5, phase_duration=1.0)
 
     # Create differential input signals
     input_values = [0.5, -0.7, 0.3]
-    input_signals = [
-        DifferentialTimeSignal.from_signed_value(val)
-        for val in input_values
-    ]
+    input_signals = [DifferentialTimeSignal.from_signed_value(val) for val in input_values]
 
     print(f"\nInput vector: {input_values}")
 
@@ -144,10 +117,7 @@ def example_four_quadrant_vmm():
     output_signals = vmm.compute_four_quadrant(input_signals)
 
     # Convert outputs back to signed values
-    output_values = [
-        sig.to_signed_value()
-        for sig in output_signals
-    ]
+    output_values = [sig.to_signed_value() for sig in output_signals]
 
     print(f"Output vector: {output_values}")
 
@@ -176,9 +146,9 @@ def example_pipelined_vmm():
     """
     Demonstrate pipelined VMM for higher throughput.
     """
-    print("\n" + "="*40)
+    print("\n" + "=" * 40)
     print("Pipelined VMM Example")
-    print("="*40)
+    print("=" * 40)
 
     from time_mode_sim import PipelinedVMM
 
@@ -196,21 +166,17 @@ def example_pipelined_vmm():
     results = []
     for batch in range(4):
         input_values = np.random.rand(3)
-        inputs = [
-            TimeSignal.from_analog_value(val, encoding='pulse_width')
-            for val in input_values
-        ]
+        inputs = [TimeSignal.from_analog_value(val, encoding="pulse_width") for val in input_values]
 
         output = pipelined.process(inputs)
 
         if output is not None:
-            output_values = [
-                sig.to_analog_value(encoding='pulse_width')
-                for sig in output
-            ]
+            output_values = [sig.to_analog_value(encoding="pulse_width") for sig in output]
             results.append(output_values)
-            print(f"Batch {batch}: Input={input_values.round(3)}, "
-                  f"Output={np.array(output_values).round(3)}")
+            print(
+                f"Batch {batch}: Input={input_values.round(3)}, "
+                f"Output={np.array(output_values).round(3)}"
+            )
         else:
             print(f"Batch {batch}: Pipeline filling...")
 
@@ -226,14 +192,14 @@ if __name__ == "__main__":
     example_pipelined_vmm()
 
     # Show plots only if not in headless mode
-    if os.environ.get('DISPLAY') or os.environ.get('MPLBACKEND') != 'Agg':
+    if os.environ.get("DISPLAY") or os.environ.get("MPLBACKEND") != "Agg":
         try:
             plt.show(block=False)
             plt.pause(0.1)
         except Exception:
             print("\nCannot display plots in current environment")
             print("Saving plots to files instead...")
-            fig1.savefig('vmm_inputs.png')
-            fig2.savefig('vmm_outputs.png')
-            fig3.savefig('vmm_differential.png')
+            fig1.savefig("vmm_inputs.png")
+            fig2.savefig("vmm_outputs.png")
+            fig3.savefig("vmm_differential.png")
             print("Plots saved.")

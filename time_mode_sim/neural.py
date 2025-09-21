@@ -15,6 +15,7 @@ class TimeActivation:
     """
     Base class for time-domain activation functions.
     """
+
     def forward(self, signals: list[TimeSignal]) -> list[TimeSignal]:
         raise NotImplementedError
 
@@ -24,6 +25,7 @@ class SoftminActivation(TimeActivation):
     Softmin activation - fastest neuron wins.
     Common in time-domain networks where earlier signals dominate.
     """
+
     def __init__(self, inhibition_delay: float = 0.01):
         self.inhibition_delay = inhibition_delay
 
@@ -33,7 +35,7 @@ class SoftminActivation(TimeActivation):
         Earliest falling edge inhibits others.
         """
         # Find earliest falling edge
-        min_time = float('inf')
+        min_time = float("inf")
         winner_idx = -1
 
         for i, signal in enumerate(signals):
@@ -50,10 +52,9 @@ class SoftminActivation(TimeActivation):
                 outputs.append(signals[i])
             else:
                 # Losers are inhibited after winner fires
-                inhibited = TimeSignal([
-                    (0.0, 0),
-                    (min_time + self.inhibition_delay, 0)
-                ], signals[i].duration)
+                inhibited = TimeSignal(
+                    [(0.0, 0), (min_time + self.inhibition_delay, 0)], signals[i].duration
+                )
                 outputs.append(inhibited)
 
         return outputs
@@ -64,6 +65,7 @@ class ReLUActivation(TimeActivation):
     ReLU activation using AND gate with bias signal.
     Passes positive values, blocks negative.
     """
+
     def __init__(self, threshold_time: float = 0.1):
         self.threshold_time = threshold_time
 
@@ -91,6 +93,7 @@ class ThresholdActivation(TimeActivation):
     """
     Simple threshold activation - binary output.
     """
+
     def __init__(self, threshold: float = 0.5, output_width: float = 0.8):
         self.threshold = threshold
         self.output_width = output_width
@@ -117,6 +120,7 @@ class TimeNeuralLayer:
     """
     Single neural network layer in time domain.
     """
+
     input_size: int
     output_size: int
     weights: np.ndarray | None = None
@@ -130,10 +134,10 @@ class TimeNeuralLayer:
 
         if self.vmm_params is None:
             self.vmm_params = {
-                'max_current': 1e-6,
-                'capacitance': 1e-12,
-                'vth': 0.5,
-                'phase_duration': 1.0
+                "max_current": 1e-6,
+                "capacitance": 1e-12,
+                "vth": 0.5,
+                "phase_duration": 1.0,
             }
 
         # Create VMM for this layer
@@ -152,8 +156,9 @@ class TimeNeuralLayer:
 
         return outputs
 
-    def forward_differential(self, inputs: list[DifferentialTimeSignal]
-                           ) -> list[DifferentialTimeSignal]:
+    def forward_differential(
+        self, inputs: list[DifferentialTimeSignal]
+    ) -> list[DifferentialTimeSignal]:
         """
         Forward pass with differential signals for signed weights.
         """
@@ -169,9 +174,13 @@ class TimeNeuralNetwork:
     """
     Multi-layer time-domain neural network.
     """
-    def __init__(self, layer_sizes: list[int],
-                 activations: list[TimeActivation] | None = None,
-                 vmm_params: dict | None = None):
+
+    def __init__(
+        self,
+        layer_sizes: list[int],
+        activations: list[TimeActivation] | None = None,
+        vmm_params: dict | None = None,
+    ):
         """
         Initialize network.
 
@@ -194,7 +203,7 @@ class TimeNeuralNetwork:
                 input_size=layer_sizes[i],
                 output_size=layer_sizes[i + 1],
                 activation=activations[i] if i < len(activations) else None,
-                vmm_params=vmm_params
+                vmm_params=vmm_params,
             )
             self.layers.append(layer)
 
@@ -227,25 +236,29 @@ class ConvolutionalTimeLayer:
     Time-domain convolutional layer.
     Implements convolution through time-multiplexed VMM operations.
     """
-    def __init__(self, in_channels: int, out_channels: int,
-                 kernel_size: int, stride: int = 1,
-                 vmm_params: dict | None = None):
+
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        vmm_params: dict | None = None,
+    ):
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = kernel_size
         self.stride = stride
 
         # Initialize kernels
-        self.kernels = np.random.randn(
-            out_channels, in_channels, kernel_size, kernel_size
-        ) * 0.1
+        self.kernels = np.random.randn(out_channels, in_channels, kernel_size, kernel_size) * 0.1
 
         if vmm_params is None:
             vmm_params = {
-                'max_current': 1e-6,
-                'capacitance': 1e-12,
-                'vth': 0.5,
-                'phase_duration': 1.0
+                "max_current": 1e-6,
+                "capacitance": 1e-12,
+                "vth": 0.5,
+                "phase_duration": 1.0,
             }
         self.vmm_params = vmm_params
 
@@ -257,13 +270,12 @@ class ConvolutionalTimeLayer:
         out_h = (h - self.kernel_size) // self.stride + 1
         out_w = (w - self.kernel_size) // self.stride + 1
 
-        col = np.zeros((self.kernel_size * self.kernel_size * self.in_channels,
-                       out_h * out_w))
+        col = np.zeros((self.kernel_size * self.kernel_size * self.in_channels, out_h * out_w))
 
         idx = 0
         for i in range(0, h - self.kernel_size + 1, self.stride):
             for j in range(0, w - self.kernel_size + 1, self.stride):
-                patch = input_map[:, i:i+self.kernel_size, j:j+self.kernel_size]
+                patch = input_map[:, i : i + self.kernel_size, j : j + self.kernel_size]
                 col[:, idx] = patch.flatten()
                 idx += 1
 
@@ -284,8 +296,10 @@ class RecurrentTimeLayer:
     Recurrent layer for time-domain processing.
     Processes sequential inputs with memory.
     """
-    def __init__(self, input_size: int, hidden_size: int,
-                 output_size: int, vmm_params: dict | None = None):
+
+    def __init__(
+        self, input_size: int, hidden_size: int, output_size: int, vmm_params: dict | None = None
+    ):
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.output_size = output_size
@@ -297,10 +311,10 @@ class RecurrentTimeLayer:
 
         if vmm_params is None:
             vmm_params = {
-                'max_current': 1e-6,
-                'capacitance': 1e-12,
-                'vth': 0.5,
-                'phase_duration': 1.0
+                "max_current": 1e-6,
+                "capacitance": 1e-12,
+                "vth": 0.5,
+                "phase_duration": 1.0,
             }
 
         # Create VMMs
@@ -315,11 +329,9 @@ class RecurrentTimeLayer:
         """
         Reset hidden state.
         """
-        self.hidden_state = [TimeSignal([(0.0, 0)], 1.0)
-                            for _ in range(self.hidden_size)]
+        self.hidden_state = [TimeSignal([(0.0, 0)], 1.0) for _ in range(self.hidden_size)]
 
-    def forward(self, input_sequence: list[list[TimeSignal]]
-               ) -> list[list[TimeSignal]]:
+    def forward(self, input_sequence: list[list[TimeSignal]]) -> list[list[TimeSignal]]:
         """
         Process sequence of inputs.
         """
@@ -341,9 +353,7 @@ class RecurrentTimeLayer:
                 # Add pulse widths (simplified combination)
                 combined_width = h_i.get_pulse_width() + h_h.get_pulse_width()
                 combined_width = min(combined_width, h_i.duration * 0.9)
-                new_hidden.append(TimeSignal.from_pulse_width(
-                    combined_width, h_i.duration
-                ))
+                new_hidden.append(TimeSignal.from_pulse_width(combined_width, h_i.duration))
 
             self.hidden_state = new_hidden
 
@@ -358,8 +368,8 @@ class TimeAutoencoder:
     """
     Autoencoder architecture in time domain.
     """
-    def __init__(self, input_size: int, encoding_size: int,
-                 hidden_sizes: list[int] | None = None):
+
+    def __init__(self, input_size: int, encoding_size: int, hidden_sizes: list[int] | None = None):
         """
         Initialize autoencoder.
 
@@ -374,16 +384,15 @@ class TimeAutoencoder:
         # Build encoder
         encoder_sizes = [input_size] + hidden_sizes + [encoding_size]
         self.encoder = TimeNeuralNetwork(
-            encoder_sizes,
-            activations=[ReLUActivation() for _ in range(len(encoder_sizes) - 1)]
+            encoder_sizes, activations=[ReLUActivation() for _ in range(len(encoder_sizes) - 1)]
         )
 
         # Build decoder (mirror of encoder)
         decoder_sizes = [encoding_size] + hidden_sizes[::-1] + [input_size]
         self.decoder = TimeNeuralNetwork(
             decoder_sizes,
-            activations=[ReLUActivation() for _ in range(len(decoder_sizes) - 2)] +
-                       [ThresholdActivation()]
+            activations=[ReLUActivation() for _ in range(len(decoder_sizes) - 2)]
+            + [ThresholdActivation()],
         )
 
     def encode(self, inputs: list[TimeSignal]) -> list[TimeSignal]:

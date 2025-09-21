@@ -27,8 +27,9 @@ from selenium.webdriver.common.by import By
 load_dotenv()
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class Paper:
@@ -41,20 +42,21 @@ class Paper:
     url: str | None = None
     source: str | None = None
 
+
 class PaperDownloader:
     def __init__(self, output_dir: str = "papers/references/downloaded"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # IEEE credentials
-        self.ieee_username = os.getenv('IEEE_USERNAME')
-        self.ieee_password = os.getenv('IEEE_PASS')
+        self.ieee_username = os.getenv("IEEE_USERNAME")
+        self.ieee_password = os.getenv("IEEE_PASS")
 
         # Setup requests session
         self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-        })
+        self.session.headers.update(
+            {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
+        )
 
         # Stats
         self.downloaded_count = 0
@@ -69,7 +71,7 @@ class PaperDownloader:
             content = f.read()
 
         # Split by reference numbers [1], [2], etc.
-        refs = re.split(r'\n\[(\d+)\]', content)[1:]  # Skip first empty element
+        refs = re.split(r"\n\[(\d+)\]", content)[1:]  # Skip first empty element
 
         for i in range(0, len(refs), 2):
             if i + 1 < len(refs):
@@ -87,47 +89,47 @@ class PaperDownloader:
         """Parse a single reference string into a Paper object."""
         try:
             # Extract arXiv ID if present
-            arxiv_match = re.search(r'arXiv:(\d+\.\d+)', ref_text)
+            arxiv_match = re.search(r"arXiv:(\d+\.\d+)", ref_text)
             arxiv_id = arxiv_match.group(1) if arxiv_match else None
 
             # Extract DOI if present
-            doi_match = re.search(r'doi:([^\s,]+)', ref_text)
+            doi_match = re.search(r"doi:([^\s,]+)", ref_text)
             doi = doi_match.group(1) if doi_match else None
 
             # Extract URL if present
-            url_match = re.search(r'Available: (https?://[^\s\]]+)', ref_text)
+            url_match = re.search(r"Available: (https?://[^\s\]]+)", ref_text)
             url = url_match.group(1) if url_match else None
 
             # Extract year
-            year_match = re.search(r'(\d{4})', ref_text)
+            year_match = re.search(r"(\d{4})", ref_text)
             year = year_match.group(1) if year_match else "Unknown"
 
             # Extract title (usually in quotes or before comma)
             title_match = re.search(r'"([^"]+)"', ref_text)
             if not title_match:
                 # Try alternative pattern: first part before "in" or venue
-                title_match = re.search(r'^([^,]+),', ref_text)
+                title_match = re.search(r"^([^,]+),", ref_text)
 
             title = title_match.group(1).strip() if title_match else "Unknown Title"
 
             # Extract authors (usually at the beginning)
             authors_match = re.search(r'^([^"]+),?\s*"', ref_text)
             if not authors_match:
-                authors_match = re.search(r'^([^,]+)', ref_text)
+                authors_match = re.search(r"^([^,]+)", ref_text)
 
             authors = authors_match.group(1).strip() if authors_match else "Unknown Authors"
 
             # Extract venue
             venue = "Unknown Venue"
             if "IEEE" in ref_text:
-                ieee_match = re.search(r'IEEE[^,]*[^,]*', ref_text)
+                ieee_match = re.search(r"IEEE[^,]*[^,]*", ref_text)
                 venue = ieee_match.group(0) if ieee_match else "IEEE Publication"
             elif "ACM" in ref_text:
                 venue = "ACM Publication"
             elif "arXiv" in ref_text:
                 venue = "arXiv"
             elif "Proceedings" in ref_text:
-                proc_match = re.search(r'in ([^,]+Proceedings[^,]*)', ref_text)
+                proc_match = re.search(r"in ([^,]+Proceedings[^,]*)", ref_text)
                 venue = proc_match.group(1) if proc_match else "Conference Proceedings"
 
             return Paper(
@@ -137,7 +139,7 @@ class PaperDownloader:
                 year=year,
                 doi=doi,
                 arxiv_id=arxiv_id,
-                url=url
+                url=url,
             )
 
         except Exception as e:
@@ -157,7 +159,7 @@ class PaperDownloader:
             paper_obj = next(search.results())
 
             # Generate filename
-            first_author = paper.authors.split(',')[0].split()[-1]  # Last name
+            first_author = paper.authors.split(",")[0].split()[-1]  # Last name
             filename = f"{first_author}_{paper.year}_{paper.arxiv_id.replace('.', '_')}.pdf"
             # filepath = self.output_dir / filename  # Will be used by download method
 
@@ -185,16 +187,18 @@ class PaperDownloader:
         try:
             # Setup Selenium for IEEE login
             options = Options()
-            options.add_argument('--headless')
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument("--headless")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
 
             driver = webdriver.Chrome(options=options)
 
             try:
                 # Search for paper on IEEE
-                search_query = paper.title.replace('"', '')
-                search_url = f"https://ieeexplore.ieee.org/search/searchresult.jsp?queryText={search_query}"
+                search_query = paper.title.replace('"', "")
+                search_url = (
+                    f"https://ieeexplore.ieee.org/search/searchresult.jsp?queryText={search_query}"
+                )
 
                 driver.get(search_url)
                 time.sleep(3)
@@ -206,7 +210,7 @@ class PaperDownloader:
 
                 # Click on first result
                 first_result = results[0].find_element(By.TAG_NAME, "a")
-                paper_url = first_result.get_attribute('href')
+                paper_url = first_result.get_attribute("href")
 
                 driver.get(paper_url)
                 time.sleep(2)
@@ -216,19 +220,21 @@ class PaperDownloader:
                     self._ieee_login(driver)
 
                 # Look for PDF download link
-                pdf_links = driver.find_elements(By.XPATH, "//a[contains(@href, '.pdf') or contains(text(), 'PDF')]")
+                pdf_links = driver.find_elements(
+                    By.XPATH, "//a[contains(@href, '.pdf') or contains(text(), 'PDF')]"
+                )
 
                 if pdf_links:
-                    pdf_url = pdf_links[0].get_attribute('href')
+                    pdf_url = pdf_links[0].get_attribute("href")
 
                     # Download PDF
-                    first_author = paper.authors.split(',')[0].split()[-1]
+                    first_author = paper.authors.split(",")[0].split()[-1]
                     filename = f"{first_author}_{paper.year}_IEEE.pdf"
                     filepath = self.output_dir / filename
 
                     response = self.session.get(pdf_url)
                     if response.status_code == 200:
-                        with open(filepath, 'wb') as f:
+                        with open(filepath, "wb") as f:
                             f.write(response.content)
 
                         logger.info(f"✓ Downloaded from IEEE: {filename}")
@@ -279,19 +285,22 @@ class PaperDownloader:
             response = self.session.get(doi_url, allow_redirects=True)
 
             # Look for PDF links in the page
-            soup = BeautifulSoup(response.content, 'html.parser')
-            pdf_links = soup.find_all('a', href=re.compile(r'\.pdf'))
+            soup = BeautifulSoup(response.content, "html.parser")
+            pdf_links = soup.find_all("a", href=re.compile(r"\.pdf"))
 
             if pdf_links:
-                pdf_url = urljoin(response.url, pdf_links[0]['href'])
+                pdf_url = urljoin(response.url, pdf_links[0]["href"])
 
                 pdf_response = self.session.get(pdf_url)
-                if pdf_response.status_code == 200 and 'application/pdf' in pdf_response.headers.get('content-type', ''):
-                    first_author = paper.authors.split(',')[0].split()[-1]
+                if (
+                    pdf_response.status_code == 200
+                    and "application/pdf" in pdf_response.headers.get("content-type", "")
+                ):
+                    first_author = paper.authors.split(",")[0].split()[-1]
                     filename = f"{first_author}_{paper.year}_DOI.pdf"
                     filepath = self.output_dir / filename
 
-                    with open(filepath, 'wb') as f:
+                    with open(filepath, "wb") as f:
                         f.write(pdf_response.content)
 
                     logger.info(f"✓ Downloaded via DOI: {filename}")
@@ -313,12 +322,12 @@ class PaperDownloader:
         try:
             response = self.session.get(paper.url)
 
-            if 'application/pdf' in response.headers.get('content-type', ''):
-                first_author = paper.authors.split(',')[0].split()[-1]
+            if "application/pdf" in response.headers.get("content-type", ""):
+                first_author = paper.authors.split(",")[0].split()[-1]
                 filename = f"{first_author}_{paper.year}_URL.pdf"
                 filepath = self.output_dir / filename
 
-                with open(filepath, 'wb') as f:
+                with open(filepath, "wb") as f:
                     f.write(response.content)
 
                 logger.info(f"✓ Downloaded from URL: {filename}")
@@ -375,6 +384,7 @@ Success Rate: {(self.downloaded_count / (self.downloaded_count + self.failed_cou
 
         return report
 
+
 def main():
     """Main function to download all papers from reference files."""
     downloader = PaperDownloader()
@@ -382,7 +392,7 @@ def main():
     # Reference files
     ref_files = [
         "papers/references/iscas2018_references.txt",
-        "papers/references/time_domain_mac_thesis_references.txt"
+        "papers/references/time_domain_mac_thesis_references.txt",
     ]
 
     all_papers = []
@@ -410,12 +420,13 @@ def main():
 
     # Save report to file
     report_path = downloader.output_dir / "download_report.txt"
-    with open(report_path, 'w') as f:
+    with open(report_path, "w") as f:
         f.write(report)
 
     # Print summary
     print(report)
     logger.info(f"Download complete! Report saved to: {report_path}")
+
 
 if __name__ == "__main__":
     main()

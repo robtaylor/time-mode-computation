@@ -11,6 +11,7 @@ class MonostableMultivibrator:
     Monostable Multivibrator (MSMV) - basic multiplying analog-to-time converter.
     Performs multiplication of analog input (voltage) with weight (current).
     """
+
     def __init__(self, capacitance: float = 1e-12, vth: float = 0.5):
         """
         Initialize MSMV.
@@ -22,8 +23,13 @@ class MonostableMultivibrator:
         self.capacitance = capacitance
         self.vth = vth
 
-    def compute(self, input_signal: TimeSignal, current_source: CurrentSource,
-                trigger_time: float = 0.0, phase_duration: float = 1.0) -> TimeSignal:
+    def compute(
+        self,
+        input_signal: TimeSignal,
+        current_source: CurrentSource,
+        trigger_time: float = 0.0,
+        phase_duration: float = 1.0,
+    ) -> TimeSignal:
         """
         Compute output pulse from input signal and current source.
 
@@ -54,9 +60,7 @@ class MonostableMultivibrator:
 
         # Create output pulse starting at trigger_time
         output_signal = TimeSignal.from_pulse_width(
-            output_duration,
-            duration=phase_duration,
-            start_time=trigger_time
+            output_duration, duration=phase_duration, start_time=trigger_time
         )
 
         return output_signal
@@ -67,7 +71,8 @@ class FixedWidthPulseGenerator:
     Fixed-Width Pulse Generator (FWPG) - maintains signal flow between stages.
     Generates fixed-duration pulse triggered by input edge.
     """
-    def __init__(self, pulse_width: float = 0.05, trigger_edge: str = 'falling'):
+
+    def __init__(self, pulse_width: float = 0.05, trigger_edge: str = "falling"):
         """
         Initialize FWPG.
 
@@ -80,7 +85,7 @@ class FixedWidthPulseGenerator:
 
     def generate(self, input_signal: TimeSignal) -> TimeSignal:
         """Generate fixed-width pulse from input signal edge."""
-        if self.trigger_edge == 'falling':
+        if self.trigger_edge == "falling":
             edge_time = input_signal.get_falling_edge()
         else:
             edge_time = input_signal.get_rising_edge()
@@ -91,9 +96,7 @@ class FixedWidthPulseGenerator:
 
         # Generate pulse starting at edge time
         return TimeSignal.from_pulse_width(
-            self.pulse_width,
-            duration=input_signal.duration,
-            start_time=edge_time
+            self.pulse_width, duration=input_signal.duration, start_time=edge_time
         )
 
 
@@ -102,6 +105,7 @@ class TimeDomainSubtractor:
     Performs time-domain subtraction using XOR/XNOR operations.
     Output = |Input - Delay| with sign information.
     """
+
     def __init__(self, delay: float):
         """
         Initialize subtractor with fixed delay.
@@ -146,6 +150,7 @@ class TimeToDigitalConverter:
     Converts time-encoded signals to digital values.
     Implements counter-based TDC for simplicity.
     """
+
     def __init__(self, resolution: int = 8, clock_period: float = 0.001):
         """
         Initialize TDC.
@@ -156,7 +161,7 @@ class TimeToDigitalConverter:
         """
         self.resolution = resolution
         self.clock_period = clock_period
-        self.max_count = 2 ** resolution - 1
+        self.max_count = 2**resolution - 1
 
     def convert(self, time_signal: TimeSignal) -> int:
         """Convert time signal to digital value."""
@@ -169,6 +174,7 @@ class DigitalToTimeConverter:
     """
     Converts digital values to time-encoded signals.
     """
+
     def __init__(self, resolution: int = 8, time_range: float = 1.0):
         """
         Initialize DTC.
@@ -179,7 +185,7 @@ class DigitalToTimeConverter:
         """
         self.resolution = resolution
         self.time_range = time_range
-        self.max_value = 2 ** resolution - 1
+        self.max_value = 2**resolution - 1
 
     def convert(self, digital_value: int) -> TimeSignal:
         """Convert digital value to time signal."""
@@ -196,8 +202,8 @@ class ChargePump:
     Integrates current over time to accumulate charge.
     Core mechanism for time-domain VMM.
     """
-    def __init__(self, capacitance: float = 1e-12, vth: float = 0.5,
-                 reset_voltage: float = 0.0):
+
+    def __init__(self, capacitance: float = 1e-12, vth: float = 0.5, reset_voltage: float = 0.0):
         """
         Initialize charge pump.
 
@@ -241,7 +247,7 @@ class ChargePump:
             Time to reach threshold
         """
         if constant_current <= 0:
-            return float('inf')
+            return float("inf")
 
         charge_needed = (self.vth - self.voltage) * self.capacitance
         return charge_needed / constant_current
@@ -252,8 +258,8 @@ class CompletionDetector:
     Detects completion of computation in asynchronous circuits.
     Can use current sensing or timeout mechanisms.
     """
-    def __init__(self, mode: str = 'current', threshold: float = 1e-9,
-                 timeout: float = 1.0):
+
+    def __init__(self, mode: str = "current", threshold: float = 1e-9, timeout: float = 1.0):
         """
         Initialize completion detector.
 
@@ -266,8 +272,7 @@ class CompletionDetector:
         self.threshold = threshold
         self.timeout = timeout
 
-    def detect_completion(self, currents: list[float],
-                         start_time: float = 0.0) -> float:
+    def detect_completion(self, currents: list[float], start_time: float = 0.0) -> float:
         """
         Detect when computation is complete.
 
@@ -278,7 +283,7 @@ class CompletionDetector:
         Returns:
             Completion time
         """
-        if self.mode == 'current':
+        if self.mode == "current":
             # Find when current drops below threshold
             for i, current in enumerate(currents):
                 if abs(current) < self.threshold:
@@ -294,6 +299,7 @@ class SRLatch:
     Set-Reset latch for storing computation results.
     Used in pipelined architectures.
     """
+
     def __init__(self, initial_state: bool = False):
         """Initialize SR latch."""
         self.state = initial_state
@@ -309,8 +315,7 @@ class SRLatch:
         self.state = False
         self.output = TimeSignal([(time, 0)], 1.0)
 
-    def update(self, set_signal: TimeSignal, reset_signal: TimeSignal,
-               time: float) -> bool:
+    def update(self, set_signal: TimeSignal, reset_signal: TimeSignal, time: float) -> bool:
         """
         Update latch based on input signals.
 

@@ -11,6 +11,7 @@ import numpy as np
 
 class SignalLevel(Enum):
     """Digital signal levels for time-encoded signals."""
+
     LOW = 0
     HIGH = 1
 
@@ -25,12 +26,17 @@ class TimeSignal:
         duration: Total duration of the signal
         phase_duration: Duration of each phase for multi-phase operations
     """
+
     transitions: list[tuple[float, SignalLevel]]
     duration: float
     phase_duration: float | None = None
 
-    def __init__(self, transitions: list[tuple[float, int]] = None,
-                 duration: float = 1.0, phase_duration: float = None):
+    def __init__(
+        self,
+        transitions: list[tuple[float, int]] = None,
+        duration: float = 1.0,
+        phase_duration: float = None,
+    ):
         """Initialize a time signal with transitions."""
         self.duration = duration
         self.phase_duration = phase_duration or duration
@@ -81,42 +87,48 @@ class TimeSignal:
     def get_rising_edge(self) -> float | None:
         """Get time of first LOW to HIGH transition."""
         for i in range(len(self.transitions) - 1):
-            if (self.transitions[i][1] == SignalLevel.LOW and
-                self.transitions[i+1][1] == SignalLevel.HIGH):
-                return self.transitions[i+1][0]
+            if (
+                self.transitions[i][1] == SignalLevel.LOW
+                and self.transitions[i + 1][1] == SignalLevel.HIGH
+            ):
+                return self.transitions[i + 1][0]
         return None
 
     def get_falling_edge(self) -> float | None:
         """Get time of first HIGH to LOW transition."""
         for i in range(len(self.transitions) - 1):
-            if (self.transitions[i][1] == SignalLevel.HIGH and
-                self.transitions[i+1][1] == SignalLevel.LOW):
-                return self.transitions[i+1][0]
+            if (
+                self.transitions[i][1] == SignalLevel.HIGH
+                and self.transitions[i + 1][1] == SignalLevel.LOW
+            ):
+                return self.transitions[i + 1][0]
         return None
 
     @classmethod
-    def from_pulse_width(cls, pulse_width: float, duration: float = 1.0,
-                        start_time: float = 0.0, inverted: bool = False):
+    def from_pulse_width(
+        cls,
+        pulse_width: float,
+        duration: float = 1.0,
+        start_time: float = 0.0,
+        inverted: bool = False,
+    ):
         """Create a signal from pulse width encoding."""
         if inverted:
             # For negative values or inverted encoding
-            transitions = [
-                (0.0, 1),
-                (start_time, 0),
-                (start_time + pulse_width, 1)
-            ]
+            transitions = [(0.0, 1), (start_time, 0), (start_time + pulse_width, 1)]
         else:
             # Standard positive encoding
-            transitions = [
-                (0.0, 0),
-                (start_time, 1),
-                (start_time + pulse_width, 0)
-            ]
+            transitions = [(0.0, 0), (start_time, 1), (start_time + pulse_width, 0)]
         return cls(transitions, duration)
 
     @classmethod
-    def from_analog_value(cls, value: float, max_value: float = 1.0,
-                         duration: float = 1.0, encoding: str = 'rising_edge'):
+    def from_analog_value(
+        cls,
+        value: float,
+        max_value: float = 1.0,
+        duration: float = 1.0,
+        encoding: str = "rising_edge",
+    ):
         """
         Convert analog value to time-encoded signal.
 
@@ -126,15 +138,15 @@ class TimeSignal:
             duration: Total signal duration
             encoding: 'rising_edge', 'pulse_width', or 'falling_edge'
         """
-        if encoding == 'rising_edge':
+        if encoding == "rising_edge":
             # Time of rising edge encodes value (used in some papers)
             edge_time = duration * (1 - value / max_value)
             transitions = [(0.0, 0), (edge_time, 1)]
-        elif encoding == 'pulse_width':
+        elif encoding == "pulse_width":
             # Pulse width encodes value (most common)
             pulse_width = duration * (value / max_value)
             return cls.from_pulse_width(pulse_width, duration)
-        elif encoding == 'falling_edge':
+        elif encoding == "falling_edge":
             # Time of falling edge encodes value
             edge_time = duration * (value / max_value)
             transitions = [(0.0, 1), (edge_time, 0)]
@@ -143,18 +155,17 @@ class TimeSignal:
 
         return cls(transitions, duration)
 
-    def to_analog_value(self, max_value: float = 1.0,
-                       encoding: str = 'pulse_width') -> float:
+    def to_analog_value(self, max_value: float = 1.0, encoding: str = "pulse_width") -> float:
         """Convert time-encoded signal back to analog value."""
-        if encoding == 'pulse_width':
+        if encoding == "pulse_width":
             pulse_width = self.get_pulse_width()
             return (pulse_width / self.duration) * max_value
-        elif encoding == 'rising_edge':
+        elif encoding == "rising_edge":
             edge = self.get_rising_edge()
             if edge is None:
                 return 0.0
             return (1 - edge / self.duration) * max_value
-        elif encoding == 'falling_edge':
+        elif encoding == "falling_edge":
             edge = self.get_falling_edge()
             if edge is None:
                 return max_value
@@ -168,14 +179,14 @@ class DifferentialTimeSignal:
     Differential time signal for four-quadrant operations.
     Uses two complementary signals to represent signed values.
     """
+
     def __init__(self, positive: TimeSignal, negative: TimeSignal):
         self.positive = positive
         self.negative = negative
         assert positive.duration == negative.duration, "Signal durations must match"
 
     @classmethod
-    def from_signed_value(cls, value: float, max_value: float = 1.0,
-                         duration: float = 1.0):
+    def from_signed_value(cls, value: float, max_value: float = 1.0, duration: float = 1.0):
         """Create differential signal from signed analog value."""
         if value >= 0:
             pos = TimeSignal.from_analog_value(abs(value), max_value, duration)
@@ -197,8 +208,10 @@ class CurrentSource:
     Represents a programmable current source (e.g., floating-gate transistor).
     Used for weight storage in time-mode VMM.
     """
-    def __init__(self, current: float, max_current: float = 1e-6,
-                 vth: float = 0.5, subthreshold: bool = True):
+
+    def __init__(
+        self, current: float, max_current: float = 1e-6, vth: float = 0.5, subthreshold: bool = True
+    ):
         """
         Initialize current source.
 
@@ -214,8 +227,7 @@ class CurrentSource:
         self.subthreshold = subthreshold
         self._noise_sigma = 0.01  # 1% noise by default
 
-    def get_current(self, vgs: float = 1.0, vds: float = 0.5,
-                   add_noise: bool = False) -> float:
+    def get_current(self, vgs: float = 1.0, vds: float = 0.5, add_noise: bool = False) -> float:
         """
         Get current with optional DIBL and noise effects.
 
@@ -232,7 +244,7 @@ class CurrentSource:
 
             # Basic subthreshold current with DIBL
             i = self.current * np.exp((vgs - self.vth) / (n * vt))
-            i *= (1 + lambda_dibl * vds)  # DIBL effect
+            i *= 1 + lambda_dibl * vds  # DIBL effect
 
         else:
             # Simple linear model for above threshold

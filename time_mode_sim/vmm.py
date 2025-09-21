@@ -3,7 +3,6 @@ Vector-Matrix Multiplication (VMM) implementation for time-mode computation.
 Supports both single-quadrant and four-quadrant operations.
 """
 
-
 import numpy as np
 
 from .blocks import ChargePump
@@ -15,9 +14,15 @@ class TimeVMM:
     Time-domain Vector-Matrix Multiplier.
     Performs y = Wx where inputs/outputs are time-encoded.
     """
-    def __init__(self, weights: np.ndarray, max_current: float = 1e-6,
-                 capacitance: float = 1e-12, vth: float = 0.5,
-                 phase_duration: float = 1.0):
+
+    def __init__(
+        self,
+        weights: np.ndarray,
+        max_current: float = 1e-6,
+        capacitance: float = 1e-12,
+        vth: float = 0.5,
+        phase_duration: float = 1.0,
+    ):
         """
         Initialize VMM.
 
@@ -39,9 +44,7 @@ class TimeVMM:
         self.current_sources = self._create_current_sources()
 
         # Create charge pumps for each output
-        self.charge_pumps = [
-            ChargePump(capacitance, vth) for _ in range(self.n_outputs)
-        ]
+        self.charge_pumps = [ChargePump(capacitance, vth) for _ in range(self.n_outputs)]
 
     def _create_current_sources(self) -> list[list[CurrentSource]]:
         """Create current sources from weight matrix."""
@@ -87,16 +90,16 @@ class TimeVMM:
 
             # Create output signal with pulse width encoding the result
             output_signal = TimeSignal.from_pulse_width(
-                weighted_sum * self.phase_duration,
-                self.phase_duration
+                weighted_sum * self.phase_duration, self.phase_duration
             )
 
             output_signals.append(output_signal)
 
         return output_signals
 
-    def compute_four_quadrant(self, input_signals: list[DifferentialTimeSignal]
-                            ) -> list[DifferentialTimeSignal]:
+    def compute_four_quadrant(
+        self, input_signals: list[DifferentialTimeSignal]
+    ) -> list[DifferentialTimeSignal]:
         """
         Compute VMM for signed inputs and weights using differential signaling.
 
@@ -122,7 +125,7 @@ class TimeVMM:
             # Create differential output signal
             output_signal = DifferentialTimeSignal.from_signed_value(
                 weighted_sum,
-                max_value=self.n_inputs  # Scale based on number of inputs
+                max_value=self.n_inputs,  # Scale based on number of inputs
             )
 
             output_signals.append(output_signal)
@@ -135,6 +138,7 @@ class PipelinedVMM:
     Pipelined VMM implementation for higher throughput.
     Uses alternating phases for computation and output generation.
     """
+
     def __init__(self, vmm: TimeVMM, pipeline_depth: int = 2):
         """
         Initialize pipelined VMM.
@@ -166,9 +170,7 @@ class PipelinedVMM:
             # Process previous stage
             prev_stage = (self.current_stage - 1) % self.pipeline_depth
             if self.pipeline_registers[prev_stage]:
-                output = self.vmm.compute_single_quadrant(
-                    self.pipeline_registers[prev_stage]
-                )
+                output = self.vmm.compute_single_quadrant(self.pipeline_registers[prev_stage])
             else:
                 output = None
         else:
@@ -185,6 +187,7 @@ class ChainedVMM:
     Chain multiple VMMs for deep networks.
     Handles signal propagation between layers.
     """
+
     def __init__(self, vmm_layers: list[TimeVMM]):
         """
         Initialize chained VMM.
@@ -195,8 +198,9 @@ class ChainedVMM:
         self.layers = vmm_layers
         self.n_layers = len(vmm_layers)
 
-    def forward(self, input_signals: list[TimeSignal],
-                include_intermediate: bool = False) -> list[TimeSignal]:
+    def forward(
+        self, input_signals: list[TimeSignal], include_intermediate: bool = False
+    ) -> list[TimeSignal]:
         """
         Forward propagate through all layers.
 
