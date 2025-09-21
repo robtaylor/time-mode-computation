@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         pdm install
-        pdm add --dev ruff pyright mypy
+        pdm add --dev ruff basedpyright mypy
 
     - name: Run ruff linting
       run: |
@@ -37,9 +37,9 @@ jobs:
       run: |
         pdm run ruff format --check .
 
-    - name: Type check with pyright
+    - name: Type check with basedpyright
       run: |
-        pdm run pyright time_mode_sim/ || true  # Warning only for now
+        pdm run basedpyright time_mode_sim/ || true  # Warning only for now
 
     - name: Type check with mypy
       run: |

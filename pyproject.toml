@@ -21,7 +21,7 @@ example-neural = {shell = "MPLBACKEND=Agg python examples/neural_network.py"}
 test = {shell = "MPLBACKEND=Agg python examples/basic_vmm.py && MPLBACKEND=Agg python examples/neural_network.py"}
 lint = "ruff check ."
 format = "ruff format ."
-type-check = "pyright time_mode_sim/"
+type-check = "basedpyright time_mode_sim/"
 
 [tool.ruff]
 target-version = "py311"
@@ -47,7 +47,7 @@ ignore = [
 quote-style = "double"
 indent-style = "space"
 
-[tool.pyright]
+[tool.basedpyright]
 pythonVersion = "3.11"
 typeCheckingMode = "basic"
 reportMissingImports = false
@@ -59,3 +59,8 @@ warn_return_any = false
 warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.31.4",
+]
