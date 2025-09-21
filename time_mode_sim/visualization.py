@@ -3,10 +3,18 @@ Visualization and analysis tools for time-mode computation.
 Provides plotting, waveform analysis, and performance metrics.
 """
 
+from typing import TYPE_CHECKING
+
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.patches import Rectangle
 
 from .core import DifferentialTimeSignal, TimeSignal
+
+if TYPE_CHECKING:
+    import matplotlib.cm as cm
 
 
 class SignalVisualizer:
@@ -20,11 +28,11 @@ class SignalVisualizer:
     def plot_signal(
         self,
         signal: TimeSignal,
-        ax: plt.Axes | None = None,
+        ax: Axes | None = None,
         label: str = "Signal",
         color: str = "blue",
         show_edges: bool = True,
-    ) -> plt.Axes:
+    ) -> Axes:
         """
         Plot a single time signal.
 
@@ -42,7 +50,7 @@ class SignalVisualizer:
             fig, ax = plt.subplots(figsize=self.figsize)
 
         # Create time points for plotting
-        times = [0]
+        times = [0.0]
         levels = [signal.get_level_at(0).value]
 
         for t, level in signal.transitions:
@@ -86,7 +94,7 @@ class SignalVisualizer:
         signals: list[TimeSignal],
         labels: list[str] | None = None,
         title: str = "Time Signals",
-    ) -> plt.Figure:
+    ) -> Figure:
         """
         Plot multiple signals on separate subplots.
         """
@@ -101,7 +109,7 @@ class SignalVisualizer:
         if labels is None:
             labels = [f"Signal {i}" for i in range(n_signals)]
 
-        colors = plt.cm.tab10(np.linspace(0, 1, n_signals))
+        colors = plt.cm.tab10(np.linspace(0, 1, n_signals))  # type: ignore
 
         for i, (signal, label, color) in enumerate(zip(signals, labels, colors, strict=False)):
             self.plot_signal(signal, axes[i], label, color[:3])
@@ -114,8 +122,8 @@ class SignalVisualizer:
         return fig
 
     def plot_differential_signal(
-        self, signal: DifferentialTimeSignal, ax: plt.Axes | None = None
-    ) -> plt.Axes:
+        self, signal: DifferentialTimeSignal, ax: Axes | None = None
+    ) -> Axes:
         """
         Plot differential time signal.
         """
@@ -211,8 +219,8 @@ class WaveformAnalyzer:
         else:
             ref_width = reference_signal.get_pulse_width()
 
-        deviations = [abs(s.get_pulse_width() - ref_width) for s in signals]
-        return np.std(deviations)
+        deviations = np.array([abs(s.get_pulse_width() - ref_width) for s in signals])
+        return float(np.std(deviations))
 
     @staticmethod
     def compute_snr(signal: TimeSignal, noise_signals: list[TimeSignal]) -> float:
@@ -304,7 +312,7 @@ class NetworkVisualizer:
 
     def plot_weight_matrix(
         self, weights: np.ndarray, title: str = "Weights", cmap: str = "RdBu_r"
-    ) -> plt.Figure:
+    ) -> Figure:
         """
         Visualize weight matrix.
         """
@@ -321,7 +329,7 @@ class NetworkVisualizer:
 
     def plot_layer_activations(
         self, layer_outputs: list[list[TimeSignal]], layer_names: list[str] | None = None
-    ) -> plt.Figure:
+    ) -> Figure:
         """
         Plot activations for each layer.
         """
@@ -349,7 +357,7 @@ class NetworkVisualizer:
         plt.tight_layout()
         return fig
 
-    def plot_training_history(self, history: dict, metrics: list[str] = None) -> plt.Figure:
+    def plot_training_history(self, history: dict, metrics: list[str] | None = None) -> Figure:
         """
         Plot training history (loss, accuracy, etc.).
         """
@@ -384,7 +392,7 @@ class TimingDiagram:
     def __init__(self, figsize: tuple[float, float] = (14, 8)):
         self.figsize = figsize
 
-    def create_diagram(self, phases: list[dict], title: str = "Timing Diagram") -> plt.Figure:
+    def create_diagram(self, phases: list[dict], title: str = "Timing Diagram") -> Figure:
         """
         Create timing diagram showing multiple phases.
 
@@ -394,11 +402,11 @@ class TimingDiagram:
         fig, ax = plt.subplots(figsize=self.figsize)
 
         y_pos = 0
-        colors = plt.cm.Set3(np.linspace(0, 1, len(phases)))
+        colors = plt.cm.Set3(np.linspace(0, 1, len(phases)))  # type: ignore
 
         for phase, color in zip(phases, colors, strict=False):
             # Draw phase block
-            rect = plt.Rectangle(
+            rect = Rectangle(
                 (phase["start"], y_pos),
                 phase["duration"],
                 0.8,

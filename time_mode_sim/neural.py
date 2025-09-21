@@ -3,6 +3,7 @@ Neural network components for time-mode computation.
 Implements layers, activation functions, and full network architectures.
 """
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -125,7 +126,7 @@ class TimeNeuralLayer:
     output_size: int
     weights: np.ndarray | None = None
     activation: TimeActivation | None = None
-    vmm_params: dict = None
+    vmm_params: dict | None = None
 
     def __post_init__(self):
         if self.weights is None:
@@ -178,7 +179,7 @@ class TimeNeuralNetwork:
     def __init__(
         self,
         layer_sizes: list[int],
-        activations: list[TimeActivation] | None = None,
+        activations: Sequence[TimeActivation] | None = None,
         vmm_params: dict | None = None,
     ):
         """
@@ -194,8 +195,9 @@ class TimeNeuralNetwork:
 
         if activations is None:
             # Default to ReLU for hidden, softmin for output
-            activations = [ReLUActivation() for _ in range(self.n_layers - 1)]
-            activations.append(SoftminActivation())
+            activations_list: list[TimeActivation] = [ReLUActivation() for _ in range(self.n_layers - 1)]
+            activations_list.append(SoftminActivation())
+            activations = activations_list
 
         self.layers = []
         for i in range(self.n_layers):
@@ -323,7 +325,7 @@ class RecurrentTimeLayer:
         self.vmm_ho = TimeVMM(self.W_ho, **vmm_params)
 
         # Hidden state
-        self.hidden_state = None
+        self.hidden_state: list[TimeSignal] | None = None
 
     def reset_hidden(self):
         """
@@ -345,6 +347,7 @@ class RecurrentTimeLayer:
             h_from_input = self.vmm_ih.compute_single_quadrant(inputs)
 
             # Hidden to hidden
+            assert self.hidden_state is not None
             h_from_hidden = self.vmm_hh.compute_single_quadrant(self.hidden_state)
 
             # Combine (simplified - real implementation would need careful timing)

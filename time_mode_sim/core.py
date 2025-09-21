@@ -33,9 +33,9 @@ class TimeSignal:
 
     def __init__(
         self,
-        transitions: list[tuple[float, int]] = None,
+        transitions: list[tuple[float, int]] | None = None,
         duration: float = 1.0,
-        phase_duration: float = None,
+        phase_duration: float | None = None,
     ):
         """Initialize a time signal with transitions."""
         self.duration = duration
