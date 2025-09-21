@@ -6,19 +6,19 @@ Attempts to download a specific IEEE paper with enhanced strategies.
 
 import os
 import time
-import requests
 from pathlib import Path
-from urllib.parse import urljoin, quote_plus
-from dotenv import load_dotenv
+from urllib.parse import quote_plus
+
+import requests
 
 # Web scraping
-from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
 
 # Load environment variables
 load_dotenv()
@@ -39,7 +39,7 @@ def setup_driver():
 
 def search_ieee_paper(title, authors, year):
     """Search for paper on IEEE Xplore with detailed logging."""
-    print(f"\\n=== Searching IEEE Xplore ===")
+    print("\\n=== Searching IEEE Xplore ===")
     print(f"Title: {title}")
     print(f"Authors: {authors}")
     print(f"Year: {year}")
@@ -58,7 +58,7 @@ def search_ieee_paper(title, authors, year):
 
         # Check if we found results
         try:
-            results_container = WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, ".List-results-items"))
             )
             print("✓ Found search results")
@@ -138,7 +138,7 @@ def search_ieee_paper(title, authors, year):
 
 def download_ieee_paper(paper_url, ieee_username, ieee_password, output_dir):
     """Attempt to download paper from IEEE with login."""
-    print(f"\\n=== Attempting Download ===")
+    print("\\n=== Attempting Download ===")
     print(f"Paper URL: {paper_url}")
 
     driver = setup_driver()

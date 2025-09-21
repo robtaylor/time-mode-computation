@@ -22,14 +22,14 @@ class SignalVisualizer:
                    show_edges: bool = True) -> plt.Axes:
         """
         Plot a single time signal.
-        
+
         Args:
             signal: Time signal to plot
             ax: Matplotlib axes (creates new if None)
             label: Label for the signal
             color: Color for the plot
             show_edges: Whether to mark edges
-        
+
         Returns:
             Matplotlib axes object
         """
@@ -372,7 +372,7 @@ class TimingDiagram:
     def create_diagram(self, phases: list[dict], title: str = "Timing Diagram") -> plt.Figure:
         """
         Create timing diagram showing multiple phases.
-        
+
         Args:
             phases: List of phase dictionaries with 'name', 'start', 'duration', 'signals'
         """

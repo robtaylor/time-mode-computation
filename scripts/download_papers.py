@@ -4,29 +4,24 @@ Academic Paper Downloader
 Downloads papers from reference lists using multiple sources and strategies.
 """
 
-import os
-import sys
-import re
-import requests
-from pathlib import Path
-from urllib.parse import urljoin, urlparse
-import time
-from typing import List, Dict, Optional, Tuple
 import logging
+import os
+import re
+import time
 from dataclasses import dataclass
-from dotenv import load_dotenv
+from pathlib import Path
+from urllib.parse import urljoin
 
 # Academic sources
 import arxiv
-from scholarly import scholarly
+import requests
 
 # Web scraping
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 # Load environment variables
 load_dotenv()
@@ -41,10 +36,10 @@ class Paper:
     authors: str
     venue: str
     year: str
-    doi: Optional[str] = None
-    arxiv_id: Optional[str] = None
-    url: Optional[str] = None
-    source: Optional[str] = None
+    doi: str | None = None
+    arxiv_id: str | None = None
+    url: str | None = None
+    source: str | None = None
 
 class PaperDownloader:
     def __init__(self, output_dir: str = "papers/references/downloaded"):
@@ -66,11 +61,11 @@ class PaperDownloader:
         self.failed_count = 0
         self.download_log = []
 
-    def parse_reference_file(self, file_path: str) -> List[Paper]:
+    def parse_reference_file(self, file_path: str) -> list[Paper]:
         """Parse a reference file and extract paper information."""
         papers = []
 
-        with open(file_path, 'r') as f:
+        with open(file_path) as f:
             content = f.read()
 
         # Split by reference numbers [1], [2], etc.
@@ -88,7 +83,7 @@ class PaperDownloader:
 
         return papers
 
-    def _parse_single_reference(self, ref_text: str) -> Optional[Paper]:
+    def _parse_single_reference(self, ref_text: str) -> Paper | None:
         """Parse a single reference string into a Paper object."""
         try:
             # Extract arXiv ID if present
@@ -164,7 +159,7 @@ class PaperDownloader:
             # Generate filename
             first_author = paper.authors.split(',')[0].split()[-1]  # Last name
             filename = f"{first_author}_{paper.year}_{paper.arxiv_id.replace('.', '_')}.pdf"
-            filepath = self.output_dir / filename
+            # filepath = self.output_dir / filename  # Will be used by download method
 
             # Download
             paper_obj.download_pdf(dirpath=str(self.output_dir), filename=filename)

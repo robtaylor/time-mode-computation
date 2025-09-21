@@ -174,7 +174,7 @@ class TimeNeuralNetwork:
                  vmm_params: dict | None = None):
         """
         Initialize network.
-        
+
         Args:
             layer_sizes: List of layer sizes [input, hidden1, ..., output]
             activations: Activation functions for each layer (except input)
@@ -362,7 +362,7 @@ class TimeAutoencoder:
                  hidden_sizes: list[int] | None = None):
         """
         Initialize autoencoder.
-        
+
         Args:
             input_size: Size of input
             encoding_size: Size of encoding (bottleneck)

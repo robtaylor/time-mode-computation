@@ -31,7 +31,7 @@ jobs:
 
     - name: Run ruff linting
       run: |
-        pdm run ruff check . --fix --exit-non-zero-on-fix
+        pdm run ruff check .
 
     - name: Check code formatting with ruff
       run: |
