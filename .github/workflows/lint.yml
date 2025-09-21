@@ -26,7 +26,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pdm install -d
+        pdm install -G dev
 
     - name: Run ruff linting
       run: |
