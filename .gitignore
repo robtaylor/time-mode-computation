@@ -4,3 +4,17 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .pdm-python
+
+# Vim swap files
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated plots
+*.png
+*.pdf
+*.svg

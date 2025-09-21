@@ -1,0 +1,83 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.11']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: true
+
+    - name: Install dependencies
+      run: |
+        pdm install
+
+    - name: Run VMM examples
+      run: |
+        pdm run example-vmm
+
+    - name: Run neural network examples
+      run: |
+        pdm run example-neural
+
+    - name: Run all tests
+      run: |
+        pdm run test
+
+    - name: Check imports
+      run: |
+        pdm run python -c "from time_mode_sim import TimeSignal, TimeVMM, TimeNeuralNetwork"
+        pdm run python -c "import time_mode_sim; print(f'Version: {time_mode_sim.__version__}')"
+
+    - name: Test basic VMM operation
+      run: |
+        pdm run python -c "
+import numpy as np
+from time_mode_sim import TimeSignal, TimeVMM
+
+# Create simple 2x2 VMM
+weights = np.array([[0.5, 0.5], [0.3, 0.7]])
+vmm = TimeVMM(weights)
+
+# Create inputs
+inputs = [
+    TimeSignal.from_analog_value(0.6),
+    TimeSignal.from_analog_value(0.4)
+]
+
+# Compute
+outputs = vmm.compute_single_quadrant(inputs)
+results = [s.to_analog_value() for s in outputs]
+
+print(f'Input: [0.6, 0.4]')
+print(f'Weights:')
+print(weights)
+print(f'Output: {results}')
+print(f'Expected: {weights @ np.array([0.6, 0.4])}')
+
+# Verify
+expected = weights @ np.array([0.6, 0.4])
+assert np.allclose(results, expected, rtol=0.1), f'VMM test failed: {results} != {expected}'
+print('VMM test passed!')
+        "

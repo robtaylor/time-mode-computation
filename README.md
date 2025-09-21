@@ -1,5 +1,8 @@
 # Time-Mode Computation Simulation Framework
 
+[![Test](https://github.com/robtaylor/time-mode-computation/actions/workflows/test.yml/badge.svg)](https://github.com/robtaylor/time-mode-computation/actions/workflows/test.yml)
+[![Lint](https://github.com/robtaylor/time-mode-computation/actions/workflows/lint.yml/badge.svg)](https://github.com/robtaylor/time-mode-computation/actions/workflows/lint.yml)
+
 A Python framework for simulating time-mode analog computation circuits and systems, based on recent research in ultra-low energy neuromorphic computing.
 
 ## Overview
