@@ -195,7 +195,9 @@ class TimeNeuralNetwork:
 
         if activations is None:
             # Default to ReLU for hidden, softmin for output
-            activations_list: list[TimeActivation] = [ReLUActivation() for _ in range(self.n_layers - 1)]
+            activations_list: list[TimeActivation] = [
+                ReLUActivation() for _ in range(self.n_layers - 1)
+            ]
             activations_list.append(SoftminActivation())
             activations = activations_list
 
