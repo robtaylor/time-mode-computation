@@ -3,9 +3,7 @@ Basic building blocks for time-mode computation circuits.
 Implements mATC, FWPG, time-domain subtraction, and other components.
 """
 
-import numpy as np
-from typing import List, Optional, Tuple
-from .core import TimeSignal, CurrentSource, SignalLevel
+from .core import CurrentSource, SignalLevel, TimeSignal
 
 
 class MonostableMultivibrator:
@@ -113,7 +111,7 @@ class TimeDomainSubtractor:
         """
         self.delay = delay
 
-    def subtract(self, input_signal: TimeSignal) -> Tuple[TimeSignal, bool]:
+    def subtract(self, input_signal: TimeSignal) -> tuple[TimeSignal, bool]:
         """
         Perform time-domain subtraction.
 
@@ -217,7 +215,7 @@ class ChargePump:
         """Reset capacitor voltage."""
         self.voltage = self.reset_voltage
 
-    def integrate(self, currents: List[float], durations: List[float]) -> float:
+    def integrate(self, currents: list[float], durations: list[float]) -> float:
         """
         Integrate multiple currents over their respective durations.
 
@@ -228,7 +226,7 @@ class ChargePump:
         Returns:
             Final voltage on capacitor
         """
-        total_charge = sum(i * t for i, t in zip(currents, durations))
+        total_charge = sum(i * t for i, t in zip(currents, durations, strict=False))
         self.voltage += total_charge / self.capacitance
         return self.voltage
 
@@ -268,7 +266,7 @@ class CompletionDetector:
         self.threshold = threshold
         self.timeout = timeout
 
-    def detect_completion(self, currents: List[float],
+    def detect_completion(self, currents: list[float],
                          start_time: float = 0.0) -> float:
         """
         Detect when computation is complete.

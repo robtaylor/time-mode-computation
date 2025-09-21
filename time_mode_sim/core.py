@@ -3,10 +3,10 @@ Core classes for time-mode computation simulation framework.
 Based on concepts from time-mode analog computation papers.
 """
 
-import numpy as np
 from dataclasses import dataclass
-from typing import List, Tuple, Optional, Union
 from enum import Enum
+
+import numpy as np
 
 
 class SignalLevel(Enum):
@@ -25,11 +25,11 @@ class TimeSignal:
         duration: Total duration of the signal
         phase_duration: Duration of each phase for multi-phase operations
     """
-    transitions: List[Tuple[float, SignalLevel]]
+    transitions: list[tuple[float, SignalLevel]]
     duration: float
-    phase_duration: Optional[float] = None
+    phase_duration: float | None = None
 
-    def __init__(self, transitions: List[Tuple[float, int]] = None,
+    def __init__(self, transitions: list[tuple[float, int]] = None,
                  duration: float = 1.0, phase_duration: float = None):
         """Initialize a time signal with transitions."""
         self.duration = duration
@@ -78,7 +78,7 @@ class TimeSignal:
 
         return high_time
 
-    def get_rising_edge(self) -> Optional[float]:
+    def get_rising_edge(self) -> float | None:
         """Get time of first LOW to HIGH transition."""
         for i in range(len(self.transitions) - 1):
             if (self.transitions[i][1] == SignalLevel.LOW and
@@ -86,7 +86,7 @@ class TimeSignal:
                 return self.transitions[i+1][0]
         return None
 
-    def get_falling_edge(self) -> Optional[float]:
+    def get_falling_edge(self) -> float | None:
         """Get time of first HIGH to LOW transition."""
         for i in range(len(self.transitions) - 1):
             if (self.transitions[i][1] == SignalLevel.HIGH and

@@ -2,49 +2,36 @@
 Time-Mode Computation Simulation Framework
 """
 
-from .core import (
-    SignalLevel,
-    TimeSignal,
-    DifferentialTimeSignal,
-    CurrentSource
-)
-
 from .blocks import (
-    MonostableMultivibrator,
-    FixedWidthPulseGenerator,
-    TimeDomainSubtractor,
-    TimeToDigitalConverter,
-    DigitalToTimeConverter,
     ChargePump,
     CompletionDetector,
-    SRLatch
+    DigitalToTimeConverter,
+    FixedWidthPulseGenerator,
+    MonostableMultivibrator,
+    SRLatch,
+    TimeDomainSubtractor,
+    TimeToDigitalConverter,
 )
-
-from .vmm import (
-    TimeVMM,
-    PipelinedVMM,
-    ChainedVMM
-)
-
+from .core import CurrentSource, DifferentialTimeSignal, SignalLevel, TimeSignal
 from .neural import (
-    TimeActivation,
-    SoftminActivation,
-    ReLUActivation,
-    ThresholdActivation,
-    TimeNeuralLayer,
-    TimeNeuralNetwork,
     ConvolutionalTimeLayer,
     RecurrentTimeLayer,
-    TimeAutoencoder
+    ReLUActivation,
+    SoftminActivation,
+    ThresholdActivation,
+    TimeActivation,
+    TimeAutoencoder,
+    TimeNeuralLayer,
+    TimeNeuralNetwork,
 )
-
 from .visualization import (
-    SignalVisualizer,
-    WaveformAnalyzer,
-    PerformanceAnalyzer,
     NetworkVisualizer,
-    TimingDiagram
+    PerformanceAnalyzer,
+    SignalVisualizer,
+    TimingDiagram,
+    WaveformAnalyzer,
 )
+from .vmm import ChainedVMM, PipelinedVMM, TimeVMM
 
 __version__ = "0.1.0"
 

@@ -1,4 +1,4 @@
-name: Lint
+name: Lint & Type Check
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  lint:
+  lint-and-type-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,14 +18,40 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install ruff
-      run: |
-        pip install ruff
+    - name: Install PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        python-version: '3.11'
+        cache: true
 
-    - name: Run ruff check
+    - name: Install dependencies
       run: |
-        ruff check . || true  # Don't fail on lint issues for now
+        pdm install
+        pdm add --dev ruff pyright mypy
 
-    - name: Check Python file formatting
+    - name: Run ruff linting
       run: |
-        ruff format --check . || true  # Don't fail on format issues for now
+        pdm run ruff check . --fix --exit-non-zero-on-fix
+
+    - name: Check code formatting with ruff
+      run: |
+        pdm run ruff format --check .
+
+    - name: Type check with pyright
+      run: |
+        pdm run pyright time_mode_sim/ || true  # Warning only for now
+
+    - name: Type check with mypy
+      run: |
+        pdm run mypy time_mode_sim/ --ignore-missing-imports || true  # Warning only for now
+
+    - name: Check for common issues
+      run: |
+        # Check for trailing whitespace
+        if grep -r "[[:space:]]$" --include="*.py" time_mode_sim/ examples/; then
+          echo "Error: Found trailing whitespace in Python files"
+          exit 1
+        fi
+
+        # Check for unused imports
+        pdm run ruff check --select F401 time_mode_sim/ examples/

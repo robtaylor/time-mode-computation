@@ -52,32 +52,33 @@ jobs:
 
     - name: Test basic VMM operation
       run: |
-        pdm run python -c "
-import numpy as np
-from time_mode_sim import TimeSignal, TimeVMM
+        cat > test_vmm.py << 'EOF'
+        import numpy as np
+        from time_mode_sim import TimeSignal, TimeVMM
 
-# Create simple 2x2 VMM
-weights = np.array([[0.5, 0.5], [0.3, 0.7]])
-vmm = TimeVMM(weights)
+        # Create simple 2x2 VMM
+        weights = np.array([[0.5, 0.5], [0.3, 0.7]])
+        vmm = TimeVMM(weights)
 
-# Create inputs
-inputs = [
-    TimeSignal.from_analog_value(0.6),
-    TimeSignal.from_analog_value(0.4)
-]
+        # Create inputs
+        inputs = [
+            TimeSignal.from_analog_value(0.6),
+            TimeSignal.from_analog_value(0.4)
+        ]
 
-# Compute
-outputs = vmm.compute_single_quadrant(inputs)
-results = [s.to_analog_value() for s in outputs]
+        # Compute
+        outputs = vmm.compute_single_quadrant(inputs)
+        results = [s.to_analog_value() for s in outputs]
 
-print(f'Input: [0.6, 0.4]')
-print(f'Weights:')
-print(weights)
-print(f'Output: {results}')
-print(f'Expected: {weights @ np.array([0.6, 0.4])}')
+        print(f'Input: [0.6, 0.4]')
+        print(f'Weights:')
+        print(weights)
+        print(f'Output: {results}')
+        print(f'Expected: {weights @ np.array([0.6, 0.4])}')
 
-# Verify
-expected = weights @ np.array([0.6, 0.4])
-assert np.allclose(results, expected, rtol=0.1), f'VMM test failed: {results} != {expected}'
-print('VMM test passed!')
-        "
+        # Verify
+        expected = weights @ np.array([0.6, 0.4])
+        assert np.allclose(results, expected, rtol=0.1), f'VMM test failed: {results} != {expected}'
+        print('VMM test passed!')
+        EOF
+        pdm run python test_vmm.py

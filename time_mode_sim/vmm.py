@@ -3,10 +3,11 @@ Vector-Matrix Multiplication (VMM) implementation for time-mode computation.
 Supports both single-quadrant and four-quadrant operations.
 """
 
+
 import numpy as np
-from typing import List, Optional, Tuple
-from .core import TimeSignal, DifferentialTimeSignal, CurrentSource
-from .blocks import ChargePump, MonostableMultivibrator, FixedWidthPulseGenerator
+
+from .blocks import ChargePump
+from .core import CurrentSource, DifferentialTimeSignal, TimeSignal
 
 
 class TimeVMM:
@@ -42,7 +43,7 @@ class TimeVMM:
             ChargePump(capacitance, vth) for _ in range(self.n_outputs)
         ]
 
-    def _create_current_sources(self) -> List[List[CurrentSource]]:
+    def _create_current_sources(self) -> list[list[CurrentSource]]:
         """Create current sources from weight matrix."""
         sources = []
         for i in range(self.n_outputs):
@@ -56,7 +57,7 @@ class TimeVMM:
             sources.append(row_sources)
         return sources
 
-    def compute_single_quadrant(self, input_signals: List[TimeSignal]) -> List[TimeSignal]:
+    def compute_single_quadrant(self, input_signals: list[TimeSignal]) -> list[TimeSignal]:
         """
         Compute VMM for non-negative inputs and weights.
 
@@ -94,8 +95,8 @@ class TimeVMM:
 
         return output_signals
 
-    def compute_four_quadrant(self, input_signals: List[DifferentialTimeSignal]
-                            ) -> List[DifferentialTimeSignal]:
+    def compute_four_quadrant(self, input_signals: list[DifferentialTimeSignal]
+                            ) -> list[DifferentialTimeSignal]:
         """
         Compute VMM for signed inputs and weights using differential signaling.
 
@@ -147,7 +148,7 @@ class PipelinedVMM:
         self.pipeline_registers = [[] for _ in range(pipeline_depth)]
         self.current_stage = 0
 
-    def process(self, input_signals: List[TimeSignal]) -> Optional[List[TimeSignal]]:
+    def process(self, input_signals: list[TimeSignal]) -> list[TimeSignal] | None:
         """
         Process inputs through pipeline.
 
@@ -184,7 +185,7 @@ class ChainedVMM:
     Chain multiple VMMs for deep networks.
     Handles signal propagation between layers.
     """
-    def __init__(self, vmm_layers: List[TimeVMM]):
+    def __init__(self, vmm_layers: list[TimeVMM]):
         """
         Initialize chained VMM.
 
@@ -194,8 +195,8 @@ class ChainedVMM:
         self.layers = vmm_layers
         self.n_layers = len(vmm_layers)
 
-    def forward(self, input_signals: List[TimeSignal],
-                include_intermediate: bool = False) -> List[TimeSignal]:
+    def forward(self, input_signals: list[TimeSignal],
+                include_intermediate: bool = False) -> list[TimeSignal]:
         """
         Forward propagate through all layers.
 
