@@ -1,0 +1,39 @@
+References from "An Asynchronous Pipelined Time-to-Digital Converter Using Time-Domain Subtraction" by Omer Can Akgun
+
+[1] F. Yuan, "Cmos time-to-digital converters for mixed-mode signal processing," The Journal of Engineering, January 2014. [Online]. Available: http://digital-library.theiet.org/content/journals/10.1049/joe.2014.0044
+
+[2] D. Miyashita, R. Yamaki, K. Hashiyoshi, H. Kobayashi, S. Kousai, Y. Oowaki, and Y. Unekawa, "An LDPC decoder with time-domain analog and digital mixed-signal processing," IEEE Journal of Solid-State Circuits, vol. 49, no. 1, pp. 73–83, Jan 2014.
+
+[3] Z. Chen and J. Gu, "Analysis and design of energy efficient time domain signal processing," in Proceedings of the 2016 International Symposium on Low Power Electronics and Design. ACM, 2016, pp. 100–105.
+
+[4] V. Ravinuthula, V. Garg, J. G. Harris, and J. A. B. Fortes, "Time-mode circuits for analog computation," International Journal of Circuit Theory and Applications, vol. 37, no. 5, pp. 631–659, 2009. [Online]. Available: http://dx.doi.org/10.1002/cta.488
+
+[5] Y. Cao, W. D. Cock, M. Steyaert, and P. Leroux, "Design and assessment of a 6 ps-resolution time-to-digital converter with 5 mgy gamma-dose tolerance for lidar application," IEEE Transactions on Nuclear Science, vol. 59, no. 4, pp. 1382–1389, Aug 2012.
+
+[6] J. Borremans, K. Vengattaramane, V. Giannini, B. Debaillie, W. V. Thillo, and J. Craninckx, "A 86 mhz-12 ghz digital-intensive pll for software-defined radios, using a 6 fj/step tdc in 40 nm digital cmos," IEEE Journal of Solid-State Circuits, vol. 45, no. 10, pp. 2116–2129, Oct 2010.
+
+[7] D. J. Kinniment, O. V. Maevsky, A. Bystrov, G. Russell, and A. V. Yakovlev, "On-chip structures for timing measurement and test," in Proceedings Eighth International Symposium on Asynchronous Circuits and Systems, April 2002, pp. 190–197.
+
+[8] T. J. Yamaguchi, S. Komatsu, M. Abbas, K. Asada, N. N. Mai-Khanh, and J. Tandon, "A cmos flash tdc with 0.84-1.3 ps resolution using standard cells," in 2012 IEEE Radio Frequency Integrated Circuits Symposium, June 2012, pp. 527–530.
+
+[9] T. Oh, H. Venkatram, and U. K. Moon, "A time-based pipelined adc using both voltage and time domain information," IEEE Journal of Solid-State Circuits, vol. 49, no. 4, pp. 961–971, April 2014.
+
+[10] K. Kim, W. Yu, and S. Cho, "A 9 bit, 1.12 ps resolution 2.5 b/stage pipelined time-to-digital converter in 65 nm cmos using time-register," IEEE Journal of Solid-State Circuits, vol. 49, no. 4, pp. 1007–1016, April 2014.
+
+[11] K. O. Ragab, H. Mostafa, and A. Eladawy, "Tdc sar algorithm with continuous disassembly (sar-cd) for time-based adcs," in 5th International Conference on Energy Aware Computing Systems Applications, March 2015, pp. 1–4.
+
+[12] R. Jiang, C. Li, M. Yang, H. Kobayashi, Y. Ozawa, N. Tsukiji, M. Hirano, R. Shiota, and K. Hatayama, "Successive approximation time-to-digital converter with vernier-level resolution," in 2016 IEEE 21st International Mixed-Signal Testing Workshop (IMSTW), July 2016, pp. 1–6.
+
+[13] A. Mantyniemi, T. Rahkonen, and J. Kostamovaara, "A cmos time-to-digital converter (tdc) based on a cyclic time domain successive approximation interpolation method," IEEE Journal of Solid-State Circuits, vol. 44, no. 11, pp. 3067–3078, 2009.
+
+[14] H. Chung, H. Ishikuro, and T. Kuroda, "A 10-bit 80-ms/s decision-select successive approximation tdc in 65-nm cmos," IEEE Journal of Solid-State Circuits, vol. 47, no. 5, pp. 1232–1241, 2012.
+
+[15] A. Elshazly, S. Rao, B. Young, and P. K. Hanumolu, "A noise-shaping time-to-digital converter using switched-ring oscillators: Analysis, design, and measurement techniques," IEEE Journal of Solid-State Circuits, vol. 49, no. 5, pp. 1184–1197, May 2014.
+
+[16] M. Miskowicz, Ed., Event-Based Control and Signal Processing. CRC Press LLC, 2017.
+
+[17] T. B. Cho and P. R. Gray, "A 10 b, 20 msample/s, 35 mw pipeline a/d converter," IEEE Journal of Solid-State Circuits, vol. 30, no. 3, pp. 166–172, March 1995.
+
+[18] S. H. Lewis, H. S. Fetterman, G. F. Gross, Jr., R. Ramachandran, and T. R. Viswanathan, "A 10-b 20-msample/s analog-to-digital converter," IEEE Journal of Solid-State Circuits, vol. 27, no. 3, pp. 351–358, March 1992.
+
+[19] M. Kishinevsky, J. Cortadella, and A. Kondratyev, "Asynchronous interface specification, analysis and synthesis," in Proceedings 1998 Design and Automation Conference. 35th DAC. (Cat. No.98CH36175), June 1998, pp. 2–7.

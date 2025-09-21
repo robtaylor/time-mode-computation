@@ -1,0 +1,47 @@
+References from "Time-Domain Multiply Accumulator Circuits for CNN Processors in 28 nm CMOS Technology" by Xutong Wu
+
+[1] M. Tan and Q. V. Le, "Efficientnet: Rethinking model scaling for convolutional neural networks," arXiv preprint arXiv:1905.11946, 2019.
+
+[2] W. Yin, K. Kann, M. Yu, and H. Schütze, "Comparative study of cnn and rnn for natural language processing," arXiv preprint arXiv:1702.01923, 2017.
+
+[3] C. Juvekar, V. Vaikuntanathan, and A. Chandrakasan, "{GAZELLE}: A low latency framework for secure neural network inference," in 27th {USENIX} Security Symposium ({USENIX} Security 18), 2018, pp. 1651–1669.
+
+[4] A. Shafiee, A. Nag, N. Muralimanohar, R. Balasubramonian, J. P. Strachan, M. Hu, R. S. Williams, and V. Srikumar, "Isaac: A convolutional neural network accelerator with in-situ analog arithmetic in crossbars," ACM SIGARCH Computer Architecture News, vol. 44, no. 3, pp. 14–26, 2016.
+
+[5] V. Vanhoucke, A. Senior, and M. Z. Mao, "Improving the speed of neural networks on cpus," in Deep Learning and Unsupervised Feature Learning Workshop, NIPS 2011, 2011.
+
+[6] M. Courbariaux, I. Hubara, D. Soudry, R. El-Yaniv, and Y. Bengio, "Binarized neural networks: Training deep neural networks with weights and activations constrained to+ 1 or-1," arXiv preprint arXiv:1602.02830, 2016.
+
+[7] R. Pawar and D. Shriramwar, "Review on multiply-accumulate unit," International Journal of Engineering Research and Applications, vol. 7, no. 06, pp. 09–13, 2017.
+
+[8] Y.-H. Chen, T. Krishna, J. S. Emer, and V. Sze, "Eyeriss: An energy-efficient reconfigurable accelerator for deep convolutional neural networks," IEEE Journal of Solid-State Circuits, vol. 52, no. 1, pp. 127–138, 2016.
+
+[9] N. P. Jouppi, C. Young, N. Patil, D. Patterson, G. Agrawal, R. Bajwa, S. Bates, S. Bhatia, N. Boden, A. Borchers et al., "In-datacenter performance analysis of a tensor processing unit," in 2017 ACM/IEEE 44th Annual International Symposium on Computer Architecture (ISCA). IEEE, 2017, pp. 1–12.
+
+[10] D. Bankman and B. Murmann, "An 8-bit, 16 input, 3.2 pj/op switched-capacitor dot product circuit in 28-nm fdsoi cmos," in 2016 IEEE Asian Solid-State Circuits Conference (A-SSCC). IEEE, 2016, pp. 21–24.
+
+[11] B. Chatterjee, P. Panda, S. Maity, A. Biswas, K. Roy, and S. Sen, "Exploiting inherent error resiliency of deep neural networks to achieve extreme energy efficiency through mixed-signal neurons," IEEE Transactions on Very Large Scale Integration (VLSI) Systems, vol. 27, no. 6, pp. 1365–1377, 2019.
+
+[12] A. Biswas and A. P. Chandrakasan, "Conv-ram: An energy-efficient sram with embedded convolution computation for low-power cnn-based machine learning applications," in 2018 IEEE International Solid-State Circuits Conference-(ISSCC). IEEE, 2018, pp. 488–490.
+
+[13] A. Sayal, S. Fathima, S. T. Nibhanupudi, and J. P. Kulkarni, "14.4 all-digital time-domain cnn engine using bidirectional memory delay lines for energy-efficient edge computing," in 2019 IEEE International Solid-State Circuits Conference-(ISSCC). IEEE, 2019, pp. 228–230.
+
+[14] L. R. Everson, M. Liu, N. Pande, and C. H. Kim, "A 104.8 tops/w one-shot time-based neuromorphic chip employing dynamic threshold error correction in 65nm," in 2018 IEEE Asian Solid-State Circuits Conference (A-SSCC). IEEE, 2018, pp. 273–276.
+
+[15] Y. LeCun, K. Kavukcuoglu, and C. Farabet, "Convolutional networks and applications in vision," in Proceedings of 2010 IEEE International Symposium on Circuits and Systems. IEEE, 2010, pp. 253–256.
+
+[16] M. ul Hassan, "Vgg16-convolutional network for classification and detection," 2018. [Online]. Available: https://neurohive.io/en/popular-networks/vgg16/
+
+[17] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein et al., "Imagenet large scale visual recognition challenge," International journal of computer vision, vol. 115, no. 3, pp. 211–252, 2015.
+
+[18] K. Simonyan and A. Zisserman, "Very deep convolutional networks for large-scale image recognition," arXiv preprint arXiv:1409.1556, 2014.
+
+[19] R. Sarpeshkar, "Analog versus digital: extrapolating from electronics to neurobiology," Neural computation, vol. 10, no. 7, pp. 1601–1638, 1998.
+
+[20] W. M. Sansen, Analog design essentials. Springer Science & Business Media, 2007, vol. 859.
+
+[21] P. Chen, F. Zhang, Z. Zong, H. Zheng, T. Siriburanon, and R. B. Staszewski, "A 15-µw, 103-fs step, 5-bit capacitor-dac-based constant-slope digital-to-time converter in 28nm cmos," in 2017 IEEE Asian Solid-State Circuits Conference (A-SSCC). IEEE, 2017, pp. 93–96.
+
+[22] N. Markulic, K. Raczkowski, P. Wambacq, and J. Craninckx, "A 10-bit, 550-fs step digital-to-time converter in 28nm cmos," in ESSCIRC 2014-40th European Solid State Circuits Conference (ESSCIRC). IEEE, 2014, pp. 79–82.
+
+[23] N. Minas, D. Kinniment, K. Heron, and G. Russell, "A high resolution flash time-to-digital converter taking into account process variability," in 13th IEEE International Symposium on Asynchronous Circuits and Systems (ASYNC'07). IEEE, 2007, pp. 163–174.
