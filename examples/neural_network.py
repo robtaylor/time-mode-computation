@@ -4,8 +4,11 @@ Neural network example using time-mode computation.
 
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 import sys
-sys.path.append('..')
+
+# Add parent directory to path to import time_mode_sim
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from time_mode_sim import (
     TimeSignal,
@@ -57,8 +60,8 @@ def example_simple_network():
     # Set trained weights (pre-computed for XOR)
     # These would normally come from training
     weights = [
-        np.array([[2.5, 2.5], [-2.5, -2.5], [2.5, -2.5], [-2.5, 2.5]]),  # Hidden
-        np.array([[1.0], [1.0], [-1.0], [-1.0]])  # Output
+        np.array([[2.5, 2.5], [-2.5, -2.5], [2.5, -2.5], [-2.5, 2.5]]),  # Hidden layer (4x2)
+        np.array([[1.0, 1.0, -1.0, -1.0]])  # Output layer (1x4)
     ]
     network.set_weights(weights)
     
@@ -324,11 +327,19 @@ def example_autoencoder():
 
 
 if __name__ == "__main__":
+    import os
+
     # Run examples
     network1, X, outputs = example_simple_network()
     network2, fig_w, fig_a = example_multilayer_network()
     fig_perf = example_performance_analysis()
     autoencoder, fig_ae = example_autoencoder()
-    
-    # Show all plots
-    plt.show()
+
+    # Show plots only if not in headless mode
+    if os.environ.get('DISPLAY') or os.environ.get('MPLBACKEND') != 'Agg':
+        try:
+            plt.show(block=False)
+            plt.pause(0.1)
+        except:
+            print("\nCannot display plots in current environment")
+            print("Examples completed successfully.")

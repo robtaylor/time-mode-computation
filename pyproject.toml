@@ -1,11 +1,11 @@
 [project]
-name = "TimeDomainAnalog"
+name = "time_mode_sim"
 version = "0.1.0"
 description = "Default template for PDM package"
 authors = [
     {name = "Rob Taylor", email = "rob.taylor@chipflow.io"},
 ]
-dependencies = ["requests>=2.32.5", "beautifulsoup4>=4.13.5", "selenium>=4.35.0", "lxml>=6.0.1", "python-dotenv>=1.1.1", "scholarly>=1.7.11", "arxiv>=2.2.0"]
+dependencies = ["requests>=2.32.5", "beautifulsoup4>=4.13.5", "selenium>=4.35.0", "lxml>=6.0.1", "python-dotenv>=1.1.1", "scholarly>=1.7.11", "arxiv>=2.2.0", "numpy>=2.3.3", "matplotlib>=3.10.6"]
 requires-python = "==3.11.*"
 readme = "README.md"
 license = {text = "MIT"}
@@ -15,4 +15,7 @@ license = {text = "MIT"}
 distribution = false
 
 [tool.pdm.scripts]
-download-papers = "python scripts/download_papers.py"
+download-papers = "scripts/download_papers.py"
+example-vmm = {shell = "MPLBACKEND=Agg python examples/basic_vmm.py"}
+example-neural = {shell = "MPLBACKEND=Agg python examples/neural_network.py"}
+test = {shell = "MPLBACKEND=Agg python examples/basic_vmm.py && MPLBACKEND=Agg python examples/neural_network.py"}

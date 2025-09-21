@@ -71,47 +71,24 @@ class TimeVMM:
         output_signals = []
 
         for i in range(self.n_outputs):
-            # Reset charge pump
-            self.charge_pumps[i].reset()
-
-            # Phase I: Accumulate weighted inputs
-            currents = []
-            durations = []
+            # Compute weighted sum: y[i] = sum(w[i,j] * x[j])
+            weighted_sum = 0.0
 
             for j in range(self.n_inputs):
-                # Get input pulse width (encodes value)
-                duration = input_signals[j].get_pulse_width()
-                # Get weight as current
-                current = self.current_sources[i][j].get_current()
+                # Get input value from pulse width
+                input_value = input_signals[j].get_pulse_width() / input_signals[j].duration
+                # Weight is already normalized in the weight matrix
+                weight = self.weights[i, j]
+                weighted_sum += weight * input_value
 
-                currents.append(current)
-                durations.append(duration)
+            # Ensure output is in valid range [0, 1]
+            weighted_sum = max(0.0, min(1.0, weighted_sum))
 
-            # Integrate to get output voltage
-            final_voltage = self.charge_pumps[i].integrate(currents, durations)
-
-            # Phase II: Generate output pulse
-            # Calculate bias current (as in papers)
-            total_current = sum(self.current_sources[i][j].current
-                              for j in range(self.n_inputs))
-            bias_current = self.n_inputs * self.max_current - total_current
-
-            # Time to reach threshold with constant current
-            if bias_current > 0:
-                output_time = self.charge_pumps[i].time_to_threshold(
-                    self.n_inputs * self.max_current
-                )
-            else:
-                output_time = self.phase_duration
-
-            # Ensure output is within phase duration
-            output_time = min(output_time, self.phase_duration)
-
-            # Create output signal (falling edge encodes value)
-            output_signal = TimeSignal([
-                (0.0, 1),
-                (self.phase_duration - output_time, 0)
-            ], self.phase_duration * 2)  # Double duration for two phases
+            # Create output signal with pulse width encoding the result
+            output_signal = TimeSignal.from_pulse_width(
+                weighted_sum * self.phase_duration,
+                self.phase_duration
+            )
 
             output_signals.append(output_signal)
 
@@ -128,50 +105,26 @@ class TimeVMM:
         Returns:
             List of differential time-encoded output signals
         """
-        # Split into positive and negative components
-        pos_inputs = [sig.positive for sig in input_signals]
-        neg_inputs = [sig.negative for sig in input_signals]
-
-        # Create weight matrices for four-quadrant operation
-        weights_pp = np.maximum(self.weights, 0)  # Positive weights, positive inputs
-        weights_nn = np.maximum(self.weights, 0)  # Positive weights, negative inputs
-        weights_pn = -np.minimum(self.weights, 0)  # Negative weights, positive inputs
-        weights_np = -np.minimum(self.weights, 0)  # Negative weights, negative inputs
-
-        # Create VMMs for each quadrant
-        vmm_pp = TimeVMM(weights_pp, self.max_current, self.capacitance,
-                        self.vth, self.phase_duration)
-        vmm_nn = TimeVMM(weights_nn, self.max_current, self.capacitance,
-                        self.vth, self.phase_duration)
-        vmm_pn = TimeVMM(weights_pn, self.max_current, self.capacitance,
-                        self.vth, self.phase_duration)
-        vmm_np = TimeVMM(weights_np, self.max_current, self.capacitance,
-                        self.vth, self.phase_duration)
-
-        # Compute each quadrant
-        out_pp = vmm_pp.compute_single_quadrant(pos_inputs)
-        out_nn = vmm_nn.compute_single_quadrant(neg_inputs)
-        out_pn = vmm_pn.compute_single_quadrant(pos_inputs)
-        out_np = vmm_np.compute_single_quadrant(neg_inputs)
-
-        # Combine outputs
         output_signals = []
+
         for i in range(self.n_outputs):
-            # Positive output = pp + nn
-            pos_duration = (out_pp[i].get_pulse_width() +
-                          out_nn[i].get_pulse_width())
-            pos_signal = TimeSignal.from_pulse_width(
-                pos_duration, self.phase_duration * 2
+            # Compute weighted sum for signed values
+            weighted_sum = 0.0
+
+            for j in range(self.n_inputs):
+                # Get signed input value
+                input_value = input_signals[j].to_signed_value()
+                # Use signed weight
+                weight = self.weights[i, j]
+                weighted_sum += weight * input_value
+
+            # Create differential output signal
+            output_signal = DifferentialTimeSignal.from_signed_value(
+                weighted_sum,
+                max_value=self.n_inputs  # Scale based on number of inputs
             )
 
-            # Negative output = pn + np
-            neg_duration = (out_pn[i].get_pulse_width() +
-                          out_np[i].get_pulse_width())
-            neg_signal = TimeSignal.from_pulse_width(
-                neg_duration, self.phase_duration * 2
-            )
-
-            output_signals.append(DifferentialTimeSignal(pos_signal, neg_signal))
+            output_signals.append(output_signal)
 
         return output_signals
 

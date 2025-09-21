@@ -64,9 +64,9 @@ class ReLUActivation(TimeActivation):
     ReLU activation using AND gate with bias signal.
     Passes positive values, blocks negative.
     """
-    def __init__(self, threshold_time: float = 0.5):
+    def __init__(self, threshold_time: float = 0.1):
         self.threshold_time = threshold_time
-    
+
     def forward(self, signals: List[TimeSignal]) -> List[TimeSignal]:
         """
         Apply ReLU by comparing pulse width to threshold.
@@ -74,17 +74,16 @@ class ReLUActivation(TimeActivation):
         outputs = []
         for signal in signals:
             pulse_width = signal.get_pulse_width()
-            
+
             if pulse_width > self.threshold_time:
-                # Positive - pass through adjusted
-                new_width = pulse_width - self.threshold_time
-                output = TimeSignal.from_pulse_width(new_width, signal.duration)
+                # Positive - pass through (no adjustment to maintain signal strength)
+                output = signal
             else:
                 # Negative - output zero
                 output = TimeSignal([(0.0, 0)], signal.duration)
-            
+
             outputs.append(output)
-        
+
         return outputs
 
 

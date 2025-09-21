@@ -4,8 +4,11 @@ Basic VMM example demonstrating time-mode vector-matrix multiplication.
 
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 import sys
-sys.path.append('..')
+
+# Add parent directory to path to import time_mode_sim
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from time_mode_sim import (
     TimeSignal,
@@ -214,10 +217,22 @@ def example_pipelined_vmm():
 
 
 if __name__ == "__main__":
+    import os
+
     # Run examples
     fig1, fig2 = example_single_quadrant_vmm()
     fig3 = example_four_quadrant_vmm()
     example_pipelined_vmm()
-    
-    # Show plots
-    plt.show()
+
+    # Show plots only if not in headless mode
+    if os.environ.get('DISPLAY') or os.environ.get('MPLBACKEND') != 'Agg':
+        try:
+            plt.show(block=False)
+            plt.pause(0.1)
+        except:
+            print("\nCannot display plots in current environment")
+            print("Saving plots to files instead...")
+            fig1.savefig('vmm_inputs.png')
+            fig2.savefig('vmm_outputs.png')
+            fig3.savefig('vmm_differential.png')
+            print("Plots saved.")
