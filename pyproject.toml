@@ -25,6 +25,7 @@ test = {shell = "MPLBACKEND=Agg python examples/basic_vmm.py && MPLBACKEND=Agg p
 lint = "ruff check ."
 format = "ruff format ."
 type-check = "basedpyright time_mode_sim/"
+check = {shell = "ruff check . && ruff format --check . && basedpyright time_mode_sim/"}
 
 [tool.ruff]
 target-version = "py311"
