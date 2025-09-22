@@ -11,21 +11,18 @@ This example demonstrates:
 4. MAC array operations for vector-matrix multiplication
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-from typing import List
-import sys
 import os
+import sys
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from time_mode_sim.core import (
-    TimeSignal,
-    DifferentialTimeSignal,
-    CurrentSource
-)
 from time_mode_sim.blocks import ChargePump
+from time_mode_sim.core import DifferentialTimeSignal, TimeSignal
 from time_mode_sim.vmm import TimeVMM
+
 # from time_mode_sim.visualization import plot_vmm_operation
 
 
@@ -72,10 +69,7 @@ class DigitalToTimeConverter:
             (pulse_width, 0),  # Falling edge after pulse width
         ]
 
-        return TimeSignal(
-            transitions=transitions,
-            duration=self.t_ref
-        )
+        return TimeSignal(transitions=transitions, duration=self.t_ref)
 
     def encode_weight(self, code: int) -> float:
         """
@@ -117,7 +111,7 @@ class TimeDomainMAC:
         self.charge_pump = ChargePump(
             capacitance=1e-12,  # 1pF integration capacitor
             vth=0.5,
-            reset_voltage=0.0
+            reset_voltage=0.0,
         )
 
     def multiply(self, input_code: int, weight_code: int) -> float:
@@ -146,8 +140,9 @@ class TimeDomainMAC:
 
         return charge
 
-    def compute_signed(self, input_val: int, weight_val: int,
-                      input_sign: bool, weight_sign: bool) -> DifferentialTimeSignal:
+    def compute_signed(
+        self, input_val: int, weight_val: int, input_sign: bool, weight_sign: bool
+    ) -> DifferentialTimeSignal:
         """
         Compute signed MAC operation using differential signaling
 
@@ -181,7 +176,7 @@ class TimeDomainMAC:
 
         return DifferentialTimeSignal(
             positive=TimeSignal(transitions=pos_transitions, duration=self.dtc.t_ref),
-            negative=TimeSignal(transitions=neg_transitions, duration=self.dtc.t_ref)
+            negative=TimeSignal(transitions=neg_transitions, duration=self.dtc.t_ref),
         )
 
 
@@ -221,7 +216,7 @@ class TimeDomainMACArray:
             Output vector (cols,)
         """
         # Normalize weights to [-1, 1] range for framework
-        max_val = 2**(self.bits - 1)
+        max_val = 2 ** (self.bits - 1)
         normalized_weights = weights / max_val
 
         # Create VMM with normalized weights
@@ -230,7 +225,7 @@ class TimeDomainMACArray:
             max_current=self.i_unit,
             capacitance=1e-12,
             vth=0.5,
-            phase_duration=20e-9
+            phase_duration=20e-9,
         )
 
         # Encode inputs as time signals
@@ -244,18 +239,20 @@ class TimeDomainMACArray:
             is_negative = normalized_val < 0
 
             # Create time signal with normalized magnitude
-            time_signal = self.input_dtcs[i].encode_input(int(magnitude * self.input_dtcs[i].max_code))
+            time_signal = self.input_dtcs[i].encode_input(
+                int(magnitude * self.input_dtcs[i].max_code)
+            )
 
             # Create differential signal for signed operation
             if is_negative:
                 diff_signal = DifferentialTimeSignal(
                     positive=TimeSignal(transitions=[(0.0, 0)], duration=time_signal.duration),
-                    negative=time_signal
+                    negative=time_signal,
                 )
             else:
                 diff_signal = DifferentialTimeSignal(
                     positive=time_signal,
-                    negative=TimeSignal(transitions=[(0.0, 0)], duration=time_signal.duration)
+                    negative=TimeSignal(transitions=[(0.0, 0)], duration=time_signal.duration),
                 )
 
             input_signals.append(diff_signal)
@@ -317,11 +314,11 @@ def demonstrate_single_mac():
     actual_ratio = test_charge / base_charge if base_charge > 0 else 0
     expected_ratio = (10 * 5) / (1 * 1)
 
-    print(f"Base (1×1):     {base_charge*1e15:.2f} fC")
-    print(f"Test (10×5):    {test_charge*1e15:.2f} fC")
+    print(f"Base (1×1):     {base_charge * 1e15:.2f} fC")
+    print(f"Test (10×5):    {test_charge * 1e15:.2f} fC")
     print(f"Actual ratio:   {actual_ratio:.2f}x")
     print(f"Expected ratio: {expected_ratio}x")
-    print(f"Error:          {abs(actual_ratio - expected_ratio)/expected_ratio*100:.1f}%")
+    print(f"Error:          {abs(actual_ratio - expected_ratio) / expected_ratio * 100:.1f}%")
 
     return results
 
@@ -339,11 +336,7 @@ def demonstrate_vmm_operation():
     # Example input vector and weight matrix
     inputs = np.array([10, -5, 15])
 
-    weights = np.array([
-        [2, -3, 1],
-        [-1, 4, 2],
-        [3, 1, -2]
-    ])
+    weights = np.array([[2, -3, 1], [-1, 4, 2], [3, 1, -2]])
 
     print("\nInput vector:")
     print(inputs)
@@ -364,7 +357,7 @@ def demonstrate_vmm_operation():
 
     # Calculate error
     error = np.abs(output - expected) / np.abs(expected) * 100
-    print("\nRelative error: {:.1f}%".format(np.mean(error)))
+    print(f"\nRelative error: {np.mean(error):.1f}%")
 
     return output, expected
 
@@ -373,7 +366,7 @@ def visualize_time_domain_principles():
     """Visualize key time-domain MAC principles"""
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-    fig.suptitle("Time-Domain MAC Operation Principles", fontsize=14, fontweight='bold')
+    fig.suptitle("Time-Domain MAC Operation Principles", fontsize=14, fontweight="bold")
 
     # 1. Pulse width encoding (constant-slope)
     ax = axes[0, 0]
@@ -386,10 +379,10 @@ def visualize_time_domain_principles():
         signal = dtc.encode_input(code)
         times.append(signal.get_pulse_width() * 1e9)  # Convert to ns
 
-    ax.bar(codes, times, width=2, color='steelblue', edgecolor='black')
-    ax.set_xlabel('Input Code')
-    ax.set_ylabel('Pulse Width (ns)')
-    ax.set_title('Digital-to-Time Conversion (Input Encoding)')
+    ax.bar(codes, times, width=2, color="steelblue", edgecolor="black")
+    ax.set_xlabel("Input Code")
+    ax.set_ylabel("Pulse Width (ns)")
+    ax.set_title("Digital-to-Time Conversion (Input Encoding)")
     ax.grid(True, alpha=0.3)
 
     # 2. Current scaling (variable-slope)
@@ -402,10 +395,10 @@ def visualize_time_domain_principles():
         current_scale = dtc.encode_weight(weight)
         currents.append(current_scale * 100)  # Scale to nA
 
-    ax.bar(weights, currents, width=2, color='coral', edgecolor='black')
-    ax.set_xlabel('Weight Code')
-    ax.set_ylabel('Current (nA)')
-    ax.set_title('Weight-to-Current Conversion')
+    ax.bar(weights, currents, width=2, color="coral", edgecolor="black")
+    ax.set_xlabel("Weight Code")
+    ax.set_ylabel("Current (nA)")
+    ax.set_title("Weight-to-Current Conversion")
     ax.grid(True, alpha=0.3)
 
     # 3. MAC operation (Charge = Current × Time)
@@ -420,11 +413,11 @@ def visualize_time_domain_principles():
         for inp in input_codes:
             charge = mac.multiply(inp, weight)
             charges.append(charge * 1e15)  # Convert to fC
-        ax.plot(input_codes, charges, label=f'Weight={weight}', linewidth=2)
+        ax.plot(input_codes, charges, label=f"Weight={weight}", linewidth=2)
 
-    ax.set_xlabel('Input Code')
-    ax.set_ylabel('Output Charge (fC)')
-    ax.set_title('MAC Output: Charge = Input × Weight')
+    ax.set_xlabel("Input Code")
+    ax.set_ylabel("Output Charge (fC)")
+    ax.set_title("MAC Output: Charge = Input × Weight")
     ax.legend()
     ax.grid(True, alpha=0.3)
 
@@ -440,14 +433,14 @@ def visualize_time_domain_principles():
     # Negative value: -15
     neg_signal = np.where(time_points < 10, -1, 0)
 
-    ax.plot(time_points, pos_signal, 'b-', linewidth=2, label='+15 (Positive line)')
-    ax.plot(time_points, neg_signal, 'r-', linewidth=2, label='-15 (Negative line)')
-    ax.fill_between(time_points, 0, pos_signal, alpha=0.3, color='blue')
-    ax.fill_between(time_points, neg_signal, 0, alpha=0.3, color='red')
+    ax.plot(time_points, pos_signal, "b-", linewidth=2, label="+15 (Positive line)")
+    ax.plot(time_points, neg_signal, "r-", linewidth=2, label="-15 (Negative line)")
+    ax.fill_between(time_points, 0, pos_signal, alpha=0.3, color="blue")
+    ax.fill_between(time_points, neg_signal, 0, alpha=0.3, color="red")
 
-    ax.set_xlabel('Time (ns)')
-    ax.set_ylabel('Signal Level')
-    ax.set_title('Differential Signaling for Signed Values')
+    ax.set_xlabel("Time (ns)")
+    ax.set_ylabel("Signal Level")
+    ax.set_title("Differential Signaling for Signed Values")
     ax.set_ylim(-1.5, 1.5)
     ax.legend()
     ax.grid(True, alpha=0.3)
@@ -465,12 +458,12 @@ def analyze_energy_efficiency():
 
     # Paper specifications
     specs = {
-        'Technology': '28 nm CMOS',
-        'Frequency': '50 MHz',
-        'Power': '120 μW',
-        'Throughput': '0.1 GOPS',
-        'Energy/Op': '1.2 pJ',
-        'Efficiency': '0.833 TOPS/W'
+        "Technology": "28 nm CMOS",
+        "Frequency": "50 MHz",
+        "Power": "120 μW",
+        "Throughput": "0.1 GOPS",
+        "Energy/Op": "1.2 pJ",
+        "Efficiency": "0.833 TOPS/W",
     }
 
     print("\nPaper Specifications:")
@@ -478,8 +471,6 @@ def analyze_energy_efficiency():
         print(f"  {key:<15}: {value}")
 
     # Calculate energy for our implementation
-    mac = TimeDomainMAC(bits=5)
-
     # Energy components
     i_ref = 100e-9  # 100nA reference current
     v_dd = 1.0  # 1V supply
@@ -503,7 +494,7 @@ def analyze_energy_efficiency():
     power = e_array * (1 / t_op)
     efficiency = ops_per_second / power
 
-    print(f"Calculated efficiency: {efficiency/1e12:.2f} TOPS/W")
+    print(f"Calculated efficiency: {efficiency / 1e12:.2f} TOPS/W")
 
     return e_mac_pj
 
@@ -511,14 +502,14 @@ def analyze_energy_efficiency():
 def main():
     """Run complete time-domain MAC demonstration"""
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print(" TIME-DOMAIN MAC USING FRAMEWORK COMPONENTS")
     print(" Based on Wu (2019) - 28nm CMOS Implementation")
-    print("="*70)
+    print("=" * 70)
 
     # 1. Single MAC operation
     print("\n1. SINGLE MAC OPERATIONS")
-    single_results = demonstrate_single_mac()
+    demonstrate_single_mac()
 
     # 2. Vector-Matrix Multiplication
     print("\n2. VECTOR-MATRIX MULTIPLICATION")

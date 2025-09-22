@@ -131,4 +131,5 @@ Based on literature:
 - **Follow existing code patterns and conventions**
 - **Document any significant architectural changes**
 - **Keep examples working and well-documented**
-- **Maintain backward compatibility when possible**
+- **Always ensure `pdm check` passes before pushing**
+
